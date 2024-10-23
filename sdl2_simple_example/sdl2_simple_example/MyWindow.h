@@ -19,6 +19,8 @@ public:
 	MyWindow(const std::string& title, int w, int h);
 	~MyWindow();
 
-	void swapBuffers() const;
+	void swapBuffers();
 
+private:
+	bool showAbout = false;
 };
