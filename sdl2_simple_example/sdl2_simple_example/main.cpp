@@ -25,7 +25,7 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "C:\\Users\\sergi\\Downloads\\cube.fbx";
+const char* file = "C:\\Users\\sergiofc6\\Downloads\\BakerHouse.fbx";
 
 struct Mesh {
     vector<GLfloat> vertices;
@@ -109,10 +109,12 @@ void moveCameraWASD(float deltaTime) {
     const Uint8* state = SDL_GetKeyboardState(NULL);
     vec3 direction(0.0f);
 
-    if (state[SDL_SCANCODE_W]) direction.y += speed * deltaTime;
-    if (state[SDL_SCANCODE_S]) direction.y -= speed * deltaTime;
+    if (state[SDL_SCANCODE_W]) direction.z += speed * deltaTime;
+    if (state[SDL_SCANCODE_S]) direction.z -= speed * deltaTime;
     if (state[SDL_SCANCODE_A]) direction.x -= speed * deltaTime;
     if (state[SDL_SCANCODE_D]) direction.x += speed * deltaTime;
+    if (state[SDL_SCANCODE_Q]) direction.y += speed * deltaTime;
+    if (state[SDL_SCANCODE_E]) direction.y -= speed * deltaTime;
 
     vec3 forward = glm::normalize(cameraTarget - cameraPosition);
     vec3 right = glm::normalize(glm::cross(forward, cameraUp));
