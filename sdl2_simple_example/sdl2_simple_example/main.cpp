@@ -13,7 +13,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <SDL2/SDL_mouse.h>
-#include <main.h>
 #include <GL/glu.h>
 
 using namespace std;
