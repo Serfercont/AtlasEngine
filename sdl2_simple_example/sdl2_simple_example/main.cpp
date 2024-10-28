@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <exception>
 #include <glm/glm.hpp>
@@ -14,6 +15,14 @@
 #include <assimp/postprocess.h>
 #include <SDL2/SDL_mouse.h>
 #include <GL/glu.h>
+#include <IL/il.h>
+#include <locale>
+#include <codecvt>
+
+std::wstring convertToWstring(const std::string& str) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.from_bytes(str);
+}
 
 using namespace std;
 using hrclock = chrono::high_resolution_clock;
@@ -25,12 +34,15 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "C:\\Users\\sergiofc6\\Downloads\\BakerHouse.fbx";
+const char* file = "C:\\Users\\sergi\\Downloads\\BakerHouse.fbx";
+const char* textureFile = "C:\\Users\sergi\Downloads\Baker_house.png";
 
 struct Mesh {
     vector<GLfloat> vertices;
     vector<GLuint> indices;
-    GLuint VAO, VBO, EBO;
+    GLuint VAO, VBO, EBO, TBO;
+	vector<GLfloat> uvCoords;
+	GLuint textureID;
 };
 
 bool isRightClicking = false;
@@ -55,6 +67,7 @@ void setupMesh(Mesh& mesh) {
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     glGenBuffers(1, &mesh.EBO);
+    glGenBuffers(1, &mesh.TBO); // Buffer de coordenadas UV
 
     glBindVertexArray(mesh.VAO);
 
@@ -68,7 +81,51 @@ void setupMesh(Mesh& mesh) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // Atributo de coordenadas UV
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.TBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh.uvCoords.size() * sizeof(GLfloat), mesh.uvCoords.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
+    glEnableVertexAttribArray(1);
+
     glBindVertexArray(0);
+}
+
+GLuint loadTexture(const char* path) {
+    ILuint imageID;
+    GLuint textureID;
+
+    // Convertir `const char*` a `std::wstring` usando codecvt para ilLoadImage
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring wPath = converter.from_bytes(path);
+
+    ilGenImages(1, &imageID);
+    ilBindImage(imageID);
+
+    // Cargar imagen usando `const wchar_t*` de wPath.c_str()
+    if (!ilLoadImage(wPath.c_str())) {
+        std::cerr << "Error al cargar la textura: " << path << std::endl;
+        ilDeleteImages(1, &imageID);
+        return 0;  // Devuelve 0 si falla la carga
+    }
+
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);  // Convertir la imagen a RGBA
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Subir los datos de la imagen a la GPU
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+
+    // Parámetros de textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    ilDeleteImages(1, &imageID);
+
+    std::cout << "Textura cargada correctamente: " << path << std::endl;
+    return textureID;
 }
 
 void loadFBX() {
@@ -89,6 +146,16 @@ void loadFBX() {
             mesh.vertices.push_back(aimesh->mVertices[v].x);
             mesh.vertices.push_back(aimesh->mVertices[v].y);
             mesh.vertices.push_back(aimesh->mVertices[v].z);
+
+            // Coordenadas UV (si están disponibles)
+            if (aimesh->mTextureCoords[0]) {
+                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
+                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
+            }
+            else {
+                mesh.uvCoords.push_back(0.0f); // UV predeterminado
+                mesh.uvCoords.push_back(0.0f);
+            }
         }
         for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
             const aiFace& face = aimesh->mFaces[f];
@@ -97,7 +164,7 @@ void loadFBX() {
             }
         }
         setupMesh(mesh);
-
+		mesh.textureID = loadTexture(textureFile);
         meshes.push_back(mesh);
     }
 }
@@ -157,6 +224,7 @@ void render() {
 
     for (const auto& mesh : meshes) {
         glBindVertexArray(mesh.VAO);
+        glBindTexture(GL_TEXTURE_2D, mesh.textureID);
         glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
@@ -169,7 +237,10 @@ static void init_openGL() {
     glewInit();
     if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API no está disponible.");
     glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+	ilInit();
 }
 
 
