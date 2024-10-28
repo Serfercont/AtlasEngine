@@ -13,6 +13,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <SDL2/SDL_mouse.h>
+#include <main.h>
 #include <GL/glu.h>
 
 using namespace std;
@@ -25,7 +26,8 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "C:\\Users\\sergiofc6\\Downloads\\cube.fbx";
+const char* defaultFile = "../../FBX/BakerHouse.fbx";
+const char* cubeFile = "../../FBX/BakerHouse.fbx";
 
 struct Mesh {
     vector<GLfloat> vertices;
@@ -66,7 +68,7 @@ void setupMesh(Mesh& mesh) {
     glBindVertexArray(0);
 }
 
-void loadFBX() {
+void loadFBX(const char* file) {
     const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (!scene) {
         fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
@@ -200,7 +202,7 @@ int main(int argc, char** argv) {
     MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
     init_openGL();
-    loadFBX(); // Cargar la malla desde el archivo FBX
+    loadFBX(defaultFile); // Cargar la malla desde el archivo FBX
 
     while (processEvents()) {
         const auto t0 = hrclock::now();
