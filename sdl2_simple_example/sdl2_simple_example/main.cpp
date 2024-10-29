@@ -287,7 +287,23 @@ static bool processEvents() {
                 shiftPressed = false;
             }
             break;
+        case SDL_DROPFILE: {
+            char* droppedFile = event.drop.file;
+            printf("Archivo arrastrado: %s\n", droppedFile);
+
+            // Limpiar las mallas cargadas anteriormente si es necesario
+            meshes.clear();
+
+            // Cargar el nuevo archivo FBX
+            loadFBX(droppedFile);
+
+            // Liberar el path de archivo
+            SDL_free(droppedFile);
         }
+
+
+        }
+        
     }
     return true;
 }
