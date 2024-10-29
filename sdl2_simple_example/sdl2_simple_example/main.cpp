@@ -36,8 +36,8 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* defaultFile = "../../FBX/BakerHouse.fbx";
-const char* cubeFile = "../../FBX/BakerHouse.fbx";
+const char* file = "../../FBX/BakerHouse.fbx";
+const char* textureFile = "../../FBX/Baker_house.png";
 
 GLuint textureID;
 struct Mesh {
