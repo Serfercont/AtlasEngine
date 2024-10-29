@@ -44,21 +44,21 @@ struct Mesh {
     vector<GLfloat> vertices;
     vector<GLuint> indices;
     //GLuint VAO, VBO, EBO, TBO;
-	vector<GLfloat> uvCoords;
-	
+    vector<GLfloat> uvCoords;
+
 };
 
 bool isRightClicking = false;
 bool isAltClicking = false;
 bool shiftPressed = false;
 
-bool isDragging = false;      
-int lastMouseX = 0;          
-int lastMouseY = 0;         
+bool isDragging = false;
+int lastMouseX = 0;
+int lastMouseY = 0;
 
-float cameraDistance = 5.0f; 
-float cameraAngleX = 0.0f;   
-float cameraAngleY = 0.0f;   
+float cameraDistance = 5.0f;
+float cameraAngleX = 0.0f;
+float cameraAngleY = 0.0f;
 
 vec3 cameraPosition(0.0f, 0.0f, 5.0f);
 vec3 cameraTarget(0.0f, 0.0f, 0.0f);
@@ -90,11 +90,11 @@ GLuint loadTexture(const char* path) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     stbi_image_free(imageData);
-	return textID;
+    return textID;
 }
 
 
-void loadFBX() {
+void loadFBX(const string& filePath) {
     const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (!scene) {
         fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
@@ -215,7 +215,7 @@ static void init_openGL() {
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	ilInit();
+    ilInit();
 }
 
 
@@ -267,7 +267,7 @@ static bool processEvents() {
                 cameraDistance -= 0.5f;
             }
             else if (event.wheel.y < 0) {
-                cameraDistance += 0.5f; 
+                cameraDistance += 0.5f;
             }
             cameraDistance = glm::clamp(cameraDistance, 1.0f, 50.0f);
 
@@ -291,11 +291,23 @@ static bool processEvents() {
             char* droppedFile = event.drop.file;
             printf("Archivo arrastrado: %s\n", droppedFile);
 
-            // Limpiar las mallas cargadas anteriormente si es necesario
+            // Liberar la textura anterior si ya estaba cargada
+            if (textureID != 0) {
+                glDeleteTextures(1, &textureID);
+                textureID = 0;
+            }
+
+            // Limpiar las mallas cargadas anteriormente
             meshes.clear();
 
             // Cargar el nuevo archivo FBX
             loadFBX(droppedFile);
+
+            // Volver a cargar la textura
+            textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
+            if (textureID == 0) {
+                std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
+            }
 
             // Liberar el path de archivo
             SDL_free(droppedFile);
@@ -303,7 +315,7 @@ static bool processEvents() {
 
 
         }
-        
+
     }
     return true;
 }
@@ -312,8 +324,8 @@ int main(int argc, char** argv) {
     MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
     init_openGL();
-    loadFBX();
-	textureID = loadTexture(textureFile);
+    loadFBX(file);
+    textureID = loadTexture(textureFile);
     if (textureID == 0) {
         cerr << "Error: La textura no se pudo cargar correctamente." << endl;
         return -1;
