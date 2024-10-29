@@ -19,6 +19,8 @@
 #include <locale>
 #include <codecvt>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 std::wstring convertToWstring(const std::string& str) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.from_bytes(str);
@@ -34,15 +36,16 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "C:\\Users\\sergiofc6\\Downloads\\BakerHouse.fbx";
-const char* textureFile = "C:\\Users\\sergiofc6\\Downloads\\Baker_house.png";
+const char* file = "C:\\Users\\sergi\\Downloads\\BakerHouse.fbx";
+const char* textureFile = "C:\\Users\\sergi\\Downloads\\Baker_house.png";
 
+GLuint textureID;
 struct Mesh {
     vector<GLfloat> vertices;
     vector<GLuint> indices;
-    GLuint VAO, VBO, EBO, TBO;
+    //GLuint VAO, VBO, EBO, TBO;
 	vector<GLfloat> uvCoords;
-	GLuint textureID;
+	
 };
 
 bool isRightClicking = false;
@@ -62,54 +65,32 @@ vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
 vector<Mesh> meshes;
-void setupMesh(Mesh& mesh) {
-    glGenVertexArrays(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.VBO);
-    glGenBuffers(1, &mesh.EBO);
-    glBindVertexArray(mesh.VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(GLfloat), mesh.vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    GLuint uvBuffer;
-    glGenBuffers(1, &uvBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mesh.uvCoords.size() * sizeof(GLfloat), mesh.uvCoords.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(GLuint), mesh.indices.data(), GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
-}
-
 
 
 GLuint loadTexture(const char* path) {
-    ILuint imageID;
-    GLuint textureID;
-    ilGenImages(1, &imageID);
-    ilBindImage(imageID);
-    if (!ilLoadImage(path)) {
-        std::cerr << "Error al cargar la textura: " << path << std::endl;
-        ilDeleteImages(1, &imageID);
-        return 0;  // Retorna 0 si falla la carga
+    int width, height, channels;
+
+    unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
+
+    if (imageData == nullptr) {
+        std::cerr << "Error: No se pudo cargar la textura " << textureFile << std::endl;
+        return 0;
     }
-    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+    GLuint textID;
+
+    glGenTextures(1, &textID);
+    glBindTexture(GL_TEXTURE_2D, textID);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    ilDeleteImages(1, &imageID);
-    std::cout << "Textura cargada correctamente: " << path << std::endl;
-    return textureID;  // Retornar el ID de la textura generada
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    stbi_image_free(imageData);
+	return textID;
 }
 
 
@@ -132,13 +113,12 @@ void loadFBX() {
             mesh.vertices.push_back(aimesh->mVertices[v].y);
             mesh.vertices.push_back(aimesh->mVertices[v].z);
 
-            // Coordenadas UV (si están disponibles)
-            if (aimesh->mTextureCoords[0]) {
+            if (aimesh->HasTextureCoords(0)) {
                 mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
                 mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
             }
             else {
-                mesh.uvCoords.push_back(0.0f); // UV predeterminado
+                mesh.uvCoords.push_back(0.0f);
                 mesh.uvCoords.push_back(0.0f);
             }
         }
@@ -148,8 +128,6 @@ void loadFBX() {
                 mesh.indices.push_back(face.mIndices[j]);
             }
         }
-        setupMesh(mesh);
-		mesh.textureID = loadTexture(textureFile);
         meshes.push_back(mesh);
     }
 }
@@ -207,14 +185,24 @@ void render() {
         cameraTarget.x, cameraTarget.y, cameraTarget.z,
         cameraUp.x, cameraUp.y, cameraUp.z);
 
-    for (const auto& mesh : meshes) {
-        glBindVertexArray(mesh.VAO);
-        glBindTexture(GL_TEXTURE_2D, mesh.textureID);
-        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);  // Desenlaza la textura
-    }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    for (const auto& mesh : meshes) {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 0, mesh.uvCoords.data());
+        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+    glPopMatrix();
     glFlush();
 }
 
@@ -225,7 +213,6 @@ static void init_openGL() {
     glewInit();
     if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API no está disponible.");
     glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	ilInit();
@@ -310,6 +297,12 @@ int main(int argc, char** argv) {
 
     init_openGL();
     loadFBX();
+	textureID = loadTexture(textureFile);
+    if (textureID == 0) {
+        cerr << "Error: La textura no se pudo cargar correctamente." << endl;
+        return -1;
+    }
+
 
     while (processEvents()) {
         const auto t0 = hrclock::now();
