@@ -34,8 +34,8 @@ static const ivec2 WINDOW_SIZE(1080, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "C:\\Users\\sergi\\Downloads\\BakerHouse.fbx";
-const char* textureFile = "C:\\Users\sergi\Downloads\Baker_house.png";
+const char* file = "C:\\Users\\sergiofc6\\Downloads\\BakerHouse.fbx";
+const char* textureFile = "C:\\Users\\sergiofc6\\Downloads\\Baker_house.png";
 
 struct Mesh {
     vector<GLfloat> vertices;
@@ -62,71 +62,79 @@ vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
 vector<Mesh> meshes;
-
 void setupMesh(Mesh& mesh) {
+    // Generar y enlazar VAO, VBO y EBO
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     glGenBuffers(1, &mesh.EBO);
-    glGenBuffers(1, &mesh.TBO); // Buffer de coordenadas UV
 
     glBindVertexArray(mesh.VAO);
 
+    // Buffer de posiciones
     glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
     glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(GLfloat), mesh.vertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(GLuint), mesh.indices.data(), GL_STATIC_DRAW);
-
-    // Atributo de posición del vértice
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Atributo de coordenadas UV
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.TBO);
+    // Buffer de coordenadas UV
+    GLuint uvBuffer;
+    glGenBuffers(1, &uvBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glBufferData(GL_ARRAY_BUFFER, mesh.uvCoords.size() * sizeof(GLfloat), mesh.uvCoords.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(1);
 
+    // Buffer de índices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(GLuint), mesh.indices.data(), GL_STATIC_DRAW);
+
+    // Desenlazar el VAO
     glBindVertexArray(0);
 }
+
 
 GLuint loadTexture(const char* path) {
     ILuint imageID;
     GLuint textureID;
 
-    // Convertir `const char*` a `std::wstring` usando codecvt para ilLoadImage
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring wPath = converter.from_bytes(path);
-
+    // Generar y vincular la imagen con DevIL
     ilGenImages(1, &imageID);
     ilBindImage(imageID);
 
-    // Cargar imagen usando `const wchar_t*` de wPath.c_str()
-    if (!ilLoadImage(wPath.c_str())) {
+    // Cargar la imagen en DevIL y verificar si ha sido exitoso
+    if (!ilLoadImage(path)) {
         std::cerr << "Error al cargar la textura: " << path << std::endl;
         ilDeleteImages(1, &imageID);
-        return 0;  // Devuelve 0 si falla la carga
+        return 0;  // Retorna 0 si falla la carga
     }
 
-    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);  // Convertir la imagen a RGBA
+    // Convertir la imagen a formato RGBA (4 canales) y tipo de dato UNSIGNED_BYTE
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+    // Generar un ID de textura en OpenGL y vincularlo
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Subir los datos de la imagen a la GPU
+    // Transferir los datos de la imagen desde DevIL a OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
 
-    // Parámetros de textura
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // Configurar los parámetros de la textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);      // Repetir en S
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);      // Repetir en T
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // Filtro de ampliación
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  // Filtro de minificación con MIPMAP
 
+    // Generar los MIPMAPs de la textura
     glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Eliminar la imagen de DevIL, ya no se necesita
     ilDeleteImages(1, &imageID);
 
+    // Imprimir mensaje de éxito
     std::cout << "Textura cargada correctamente: " << path << std::endl;
-    return textureID;
+    return textureID;  // Retornar el ID de la textura generada
 }
+
 
 void loadFBX() {
     const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -224,13 +232,21 @@ void render() {
 
     for (const auto& mesh : meshes) {
         glBindVertexArray(mesh.VAO);
+
+        // Enlaza la textura de la malla
         glBindTexture(GL_TEXTURE_2D, mesh.textureID);
+
+        // Dibuja la malla
         glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
         glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);  // Desenlaza la textura
     }
 
     glFlush();
 }
+
+
 
 
 static void init_openGL() {
