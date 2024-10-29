@@ -94,7 +94,7 @@ GLuint loadTexture(const char* path) {
 }
 
 
-void loadFBX() {
+void loadFBX(const string& filePath) {
     const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (!scene) {
         fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
@@ -291,11 +291,23 @@ static bool processEvents() {
             char* droppedFile = event.drop.file;
             printf("Archivo arrastrado: %s\n", droppedFile);
 
-            // Limpiar las mallas cargadas anteriormente si es necesario
+            // Liberar la textura anterior si ya estaba cargada
+            if (textureID != 0) {
+                glDeleteTextures(1, &textureID);
+                textureID = 0;
+            }
+
+            // Limpiar las mallas cargadas anteriormente
             meshes.clear();
 
             // Cargar el nuevo archivo FBX
             loadFBX(droppedFile);
+
+            // Volver a cargar la textura
+            textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
+            if (textureID == 0) {
+                std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
+            }
 
             // Liberar el path de archivo
             SDL_free(droppedFile);
@@ -312,7 +324,7 @@ int main(int argc, char** argv) {
     MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
     init_openGL();
-    loadFBX();
+    loadFBX(file);
 	textureID = loadTexture(textureFile);
     if (textureID == 0) {
         cerr << "Error: La textura no se pudo cargar correctamente." << endl;
