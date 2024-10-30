@@ -63,13 +63,12 @@ float cameraAngleY = 0.0f;
 vec3 cameraPosition(0.0f, 0.0f, 5.0f);
 vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 vec3 cameraUp(0.0f, 1.0f, 0.0f);
-
+bool modelLoaded = false;
 vector<Mesh> meshes;
 
 
 GLuint loadTexture(const char* path) {
     int width, height, channels;
-
     unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
 
     if (imageData == nullptr) {
@@ -77,7 +76,6 @@ GLuint loadTexture(const char* path) {
         return 0;
     }
     GLuint textID;
-
     glGenTextures(1, &textID);
     glBindTexture(GL_TEXTURE_2D, textID);
 
@@ -101,10 +99,12 @@ void loadFBX(const string& filePath) {
         return;
     }
 
+    meshes.clear();  // Limpiar las mallas anteriores
+
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         const aiMesh* aimesh = scene->mMeshes[i];
         printf("\nMalla %u:\n", i);
-        printf(" Numero de v�rtices: %u\n", aimesh->mNumVertices);
+        printf(" Numero de vértices: %u\n", aimesh->mNumVertices);
 
         Mesh mesh;
 
@@ -130,6 +130,7 @@ void loadFBX(const string& filePath) {
         }
         meshes.push_back(mesh);
     }
+    modelLoaded = true;  // Indicar que el nuevo modelo se ha cargado
 }
 
 void moveCameraWASD(float deltaTime) {
@@ -173,8 +174,9 @@ void updateCameraPosition() {
 
 
 void render() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (!modelLoaded) return;  // Evitar renderizado si no hay modelo cargado
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 0.1, 100.0);
@@ -205,6 +207,7 @@ void render() {
     glPopMatrix();
     glFlush();
 }
+
 
 
 
@@ -287,31 +290,28 @@ static bool processEvents() {
                 shiftPressed = false;
             }
             break;
-        case SDL_DROPFILE: {
-            char* droppedFile = event.drop.file;
-            printf("Archivo arrastrado: %s\n", droppedFile);
+       case SDL_DROPFILE: {
+                char* droppedFile = event.drop.file;
+                std::string filepath(droppedFile);
+                std::string extension = filepath.substr(filepath.find_last_of(".") + 1);
 
-            // Liberar la textura anterior si ya estaba cargada
-            if (textureID != 0) {
-                glDeleteTextures(1, &textureID);
-                textureID = 0;
+                if (extension == "png" || extension == "dds") {
+                    if (textureID != 0) {
+                        glDeleteTextures(1, &textureID);
+                        textureID = 0;
+                    }
+                    textureID = loadTexture(filepath.c_str());
+                    if (textureID == 0) {
+                        std::cerr << "Error al cargar la textura " << filepath << std::endl;
+                    }
+                } else if (extension == "fbx") {
+                    loadFBX(filepath);  // Cargar el nuevo modelo FBX
+                } else {
+                    std::cerr << "Tipo de archivo no compatible: " << filepath << std::endl;
+                }
+                SDL_free(droppedFile);
+                break;
             }
-
-            // Limpiar las mallas cargadas anteriormente
-            meshes.clear();
-
-            // Cargar el nuevo archivo FBX
-            loadFBX(droppedFile);
-
-            // Volver a cargar la textura
-            textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
-            if (textureID == 0) {
-                std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
-            }
-
-            // Liberar el path de archivo
-            SDL_free(droppedFile);
-        }
 
 
         }
