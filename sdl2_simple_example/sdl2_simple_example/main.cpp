@@ -93,14 +93,17 @@ GLuint loadTexture(const char* path) {
 
 
 void loadFBX(const string& filePath) {
-    const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
+    // Intentar cargar el archivo FBX
+    const aiScene* scene = aiImportFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+
     if (!scene) {
-        fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
+        std::cerr << "Error en cargar el archivo: " << filePath << "\n" << aiGetErrorString() << std::endl;
         return;
     }
 
     meshes.clear();  // Limpiar las mallas anteriores
 
+    // Procesar mallas en el archivo FBX
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         const aiMesh* aimesh = scene->mMeshes[i];
         printf("\nMalla %u:\n", i);
@@ -132,6 +135,7 @@ void loadFBX(const string& filePath) {
     }
     modelLoaded = true;  // Indicar que el nuevo modelo se ha cargado
 }
+
 
 void moveCameraWASD(float deltaTime) {
     const float baseSpeed = 2.5f;
