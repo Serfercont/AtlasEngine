@@ -4,13 +4,21 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
+#include <string>
+#include <vector>
 
+bool showConsole = true;
+
+std::vector<std::string> logMessages;
+int LogSize = 0;
 
 void RenderImGuiMenus(bool& showAbout)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+
+    Docking();
 
 
     if (ImGui::BeginMainMenuBar()) {
@@ -243,10 +251,11 @@ void RenderImGuiMenus(bool& showAbout)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Window")) {
-            if (ImGui::MenuItem("Test"))
+        if (ImGui::BeginMenu("Window"))
+        {
+            if (ImGui::MenuItem("Console"))
             {
-
+                showConsole = true;
             }
             ImGui::EndMenu();
         }
@@ -281,7 +290,66 @@ void RenderImGuiMenus(bool& showAbout)
         ImGui::End();
     }
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    if (showConsole)
+    {
+        ImGui::Begin("Console", &showConsole);
+        if (ImGui::SmallButton("Clear"))
+        {
+            logMessages.clear();
+            LogSize = 0;
+        }
+        ImGui::Separator();
+        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+           LogInConsole(LogSize); 
+        }
+        ImGui::EndChild();
+        ImGui::End();
+    }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+void LogInConsole(int ListSize)
+{
+    for (size_t i = 0; i < ListSize; i++)
+    {
+        ImGui::Text("%s", logMessages[i].c_str());
+    }
+}
+
+void SaveMessage(const char* message)
+{
+    logMessages.push_back(message);
+    LogSize++;
+}
+
+
+void Docking()
+{
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::SetNextWindowBgAlpha(0.0f);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    ImGui::Begin("Dockspace", NULL, windowFlags);
+    ImGui::PopStyleVar(3);
+
+    ImGuiID dockspaceId = ImGui::GetID("Dockspace");
+    ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::End();
+}
+
 

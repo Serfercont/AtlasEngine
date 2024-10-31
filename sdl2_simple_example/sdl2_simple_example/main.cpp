@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <SDL2/SDL_events.h>
 #include "MyWindow.h"
+#include "ModuleInterface.h"
 #include "imgui_impl_sdl2.h"
 #include <stdio.h>
 #include <assimp/cimport.h>
@@ -103,8 +104,11 @@ void loadFBX(const string& filePath) {
 
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         const aiMesh* aimesh = scene->mMeshes[i];
-        printf("\nMalla %u:\n", i);
-        printf(" Numero de v�rtices: %u\n", aimesh->mNumVertices);
+        std::string mensaje = "Se ha cargado la malla " + std::to_string(i);// Construye el mensaje de carga de malla con el índice `i`
+        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
+        mensaje = "Numero de vertices " + std::to_string(aimesh->mNumVertices);// Construye un mensaje que incluye el número de vértices de la malla `aimesh`
+        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
+        printf(" Numero de vertices: %u\n", aimesh->mNumVertices);
 
         Mesh mesh;
 
@@ -307,6 +311,7 @@ static bool processEvents() {
             textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
             if (textureID == 0) {
                 std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
+                SaveMessage("Error: No se pudo cargar la nueva textura ");
             }
 
             // Liberar el path de archivo
