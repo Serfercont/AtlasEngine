@@ -25,6 +25,8 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     if (SDL_GL_SetSwapInterval(1) != 0) throw exception(SDL_GetError());
 
     ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 130");
 }

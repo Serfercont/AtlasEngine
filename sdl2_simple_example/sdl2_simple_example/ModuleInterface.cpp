@@ -321,7 +321,13 @@ void RenderImGuiMenus(bool& showAbout)
     if (showConfiguration)
     {
         ImGui::Begin("Configuration", &showConfiguration);
-        ImGui::Text("FPS: %.1f", frameRate);
+        static float frameRateValues[90] = {};
+        static int offset = 0;
+        frameRateValues[offset] = frameRate;
+        offset = (offset+1)% IM_ARRAYSIZE(frameRateValues);
+        char overlay[32];
+        sprintf_s(overlay, "avg FPS: %.1f", frameRate);
+        ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
         ImGui::End();
     }
 
