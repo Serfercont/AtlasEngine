@@ -40,6 +40,8 @@ static const auto FRAME_DT = 1.0s / FPS;
 const char* file = "../../FBX/BakerHouse.fbx";
 const char* textureFile = "../../FBX/Baker_house.png";
 
+double frameRate = 0;
+
 GLuint textureID;
 struct Mesh {
     vector<GLfloat> vertices;
@@ -336,9 +338,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    int frames = 0;
+    double fps = 0.0;
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     while (processEvents()) {
-        const auto t0 = hrclock::now();
         float deltaTime = chrono::duration<float>(FRAME_DT).count();
 
         if (isRightClicking) {
@@ -348,9 +352,20 @@ int main(int argc, char** argv) {
         render();
         window.swapBuffers();
 
-        const auto t1 = hrclock::now();
-        const auto dt = t1 - t0;
+        frames++;
+
+        const auto currentTime = hrclock::now();
+        const auto dt = currentTime - startTime;
+        std::chrono::duration<double> elapsed = currentTime - startTime;
         if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+        if (elapsed.count() >= 1.0) { // 1.0 representa un segundo
+            std::cout << "Ha pasado 1 segundo." << std::endl;
+            frameRate = frames / elapsed.count();
+            std::cout << "FPS: " << frameRate << std::endl;
+            frames = 0;
+            // Reiniciar el tiempo de inicio para otro intervalo de un segundo
+            startTime = currentTime;
+        }
     }
 
     return 0;

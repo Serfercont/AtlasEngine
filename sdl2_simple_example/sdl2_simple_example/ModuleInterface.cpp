@@ -8,6 +8,8 @@
 #include <vector>
 
 bool showConsole = true;
+bool showConfiguration = false;
+bool showHierarchy = false;
 
 std::vector<std::string> logMessages;
 int LogSize = 0;
@@ -257,6 +259,14 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 showConsole = true;
             }
+            if (ImGui::MenuItem("Configuration"))
+            {
+                showConfiguration = true;
+            }
+            if (ImGui::MenuItem("Hierarchy"))
+            {
+                showHierarchy = true;
+            }
             ImGui::EndMenu();
         }
 
@@ -305,6 +315,19 @@ void RenderImGuiMenus(bool& showAbout)
            LogInConsole(LogSize); 
         }
         ImGui::EndChild();
+        ImGui::End();
+    }
+
+    if (showConfiguration)
+    {
+        ImGui::Begin("Configuration", &showConfiguration);
+        ImGui::Text("FPS: %.1f", frameRate);
+        ImGui::End();
+    }
+
+    if (showHierarchy)
+    {
+        ImGui::Begin("Hierarchy", &showHierarchy);
         ImGui::End();
     }
 
