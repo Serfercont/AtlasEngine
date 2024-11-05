@@ -10,25 +10,22 @@ ModuleScene::~ModuleScene() {
     gameObjects.clear();
 }
 
-void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name,  const Transform& transform) {
+void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
     Mesh* mesh = new Mesh(vertices, uvs, indices);
-    GameObject* gameObject = new GameObject(mesh, nullptr);
+    GameObject* gameObject = new GameObject(mesh, nullptr); // Inicializa con textura nula
 
-    gameObject->setTransform(transform);
+    gameObject->setTransform(transform); // Establece la transformación del objeto
 
-    gameObjects.push_back(gameObject);
-    gameObjectNames.push_back(name);
+    gameObjects.push_back(gameObject); // Agrega el objeto a la lista
+    gameObjectNames.push_back(name); // Guarda el nombre del objeto
 }
 
+// Ejemplo para cargar texturas después de agregar varios GameObjects
 void ModuleScene::setTexture(GLuint textureID) {
-    if (!gameObjects.empty()) {
-        Texture* newTexture = new Texture(textureID);
+    Texture* newTexture = new Texture(textureID); // Crea una nueva textura
 
-        GameObject* lastObject = gameObjects.back();
-        if (lastObject->getTexture() != nullptr) {
-            delete lastObject->getTexture();
-        }
-        lastObject->setTexture(newTexture);
+    for (auto& obj : gameObjects) {
+        obj->setTexture(newTexture); // Asigna la textura a cada objeto
     }
 }
 

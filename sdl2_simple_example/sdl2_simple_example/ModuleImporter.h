@@ -17,7 +17,6 @@ public:
 
     GLuint getTextureID() { return textureID; }
 
-    GLuint createCheckerTexture();
     GLuint getTextureID() const;
 
     void setWindow(MyWindow* window);

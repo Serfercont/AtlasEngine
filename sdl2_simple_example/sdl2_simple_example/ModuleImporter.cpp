@@ -35,56 +35,6 @@ void ModuleImporter::setWindow(MyWindow* window) {
     _window = window;
 }
 
-void centerModel(const aiScene* scene) {
-    if (scene->mNumMeshes == 0) return; // Comprobar si hay meshes
-    aiVector3D min, max;
-    min = max = scene->mMeshes[0]->mVertices[0];
-
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-        for (unsigned int v = 0; v < scene->mMeshes[i]->mNumVertices; v++) {
-            aiVector3D vertex = scene->mMeshes[i]->mVertices[v];
-            min.x = min(min.x, vertex.x);
-            min.y = min(min.y, vertex.y);
-            min.z = min(min.z, vertex.z);
-            max.x = max(max.x, vertex.x);
-            max.y = max(max.y, vertex.y);
-            max.z = max(max.z, vertex.z);
-        }
-    }
-    modelCenter = vec3((min.x + max.x) / 2, (min.y + max.y) / 2, (min.z + max.z) / 2);
-    modelScale = 2.0f / glm::length(vec3(max.x - min.x, max.y - min.y, max.z - min.z));
-    //modelScale = 2.0f / glm::length(vec3(max.x - min.x, max.y - min.y, max.z - min.z));
-}
-
-// Dentro de la clase Importer, agrega un método para crear una textura checker
-GLuint ModuleImporter::createCheckerTexture() {
-    const int width = 64;
-    const int height = 64;
-    std::vector<GLubyte> checkerImage(width * height * 4);
-
-    // Generar el patrón checker
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            int c = ((x / 8) % 2) == ((y / 8) % 2) ? 255 : 0;
-            checkerImage[(y * width + x) * 4 + 0] = (GLubyte)c;
-            checkerImage[(y * width + x) * 4 + 1] = (GLubyte)c;
-            checkerImage[(y * width + x) * 4 + 2] = (GLubyte)c;
-            checkerImage[(y * width + x) * 4 + 3] = 255;  // Alpha
-        }
-    }
-
-    GLuint checkerTexture;
-    glGenTextures(1, &checkerTexture);
-    glBindTexture(GL_TEXTURE_2D, checkerTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, checkerImage.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    return checkerTexture;
-}
-
 bool ModuleImporter::loadFBX(const std::string& filePath) {
     const aiScene* scene = aiImportFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
         if (!scene) {
