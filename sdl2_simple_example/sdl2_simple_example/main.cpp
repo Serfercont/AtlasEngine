@@ -64,72 +64,6 @@ vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
 
 
-
-//GLuint loadTexture(const char* path) {
-//    int width, height, channels;
-//
-//    unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-//
-//    if (imageData == nullptr) {
-//        std::cerr << "Error: No se pudo cargar la textura " << textureFile << std::endl;
-//        return 0;
-//    }
-//    GLuint textID;
-//
-//    glGenTextures(1, &textID);
-//    glBindTexture(GL_TEXTURE_2D, textID);
-//
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//
-//    stbi_image_free(imageData);
-//    return textID;
-//}
-//
-//
-//void loadFBX(const string& filePath) {
-//    const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
-//    if (!scene) {
-//        fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
-//        return;
-//    }
-//
-//    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-//        const aiMesh* aimesh = scene->mMeshes[i];
-//        printf("\nMalla %u:\n", i);
-//        printf(" Numero de v�rtices: %u\n", aimesh->mNumVertices);
-//
-//        Mesh mesh;
-//
-//        for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
-//            mesh.vertices.push_back(aimesh->mVertices[v].x);
-//            mesh.vertices.push_back(aimesh->mVertices[v].y);
-//            mesh.vertices.push_back(aimesh->mVertices[v].z);
-//
-//            if (aimesh->HasTextureCoords(0)) {
-//                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
-//                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
-//            }
-//            else {
-//                mesh.uvCoords.push_back(0.0f);
-//                mesh.uvCoords.push_back(0.0f);
-//            }
-//        }
-//        for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
-//            const aiFace& face = aimesh->mFaces[f];
-//            for (unsigned int j = 0; j < face.mNumIndices; j++) {
-//                mesh.indices.push_back(face.mIndices[j]);
-//            }
-//        }
-//        meshes.push_back(mesh);
-//    }
-//}
-
 void moveCameraWASD(float deltaTime) {
     const float baseSpeed = 2.5f;
     float speed = shiftPressed ? baseSpeed * 2.0f : baseSpeed;
@@ -171,10 +105,8 @@ void updateCameraPosition() {
 
 
 void render() {
-    // Limpiar buffers de color y profundidad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Configuración de la proyección y vista de la cámara
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 0.1, 100.0);
@@ -185,28 +117,21 @@ void render() {
         cameraTarget.x, cameraTarget.y, cameraTarget.z,
         cameraUp.x, cameraUp.y, cameraUp.z);
 
-    // Configuración de transparencia
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Configuración de texturas
     glEnable(GL_TEXTURE_2D);
 
-    // Vincula la textura usando ModuleImporter (asume que ModuleImporter maneja el ID de textura)
     glBindTexture(GL_TEXTURE_2D, importer.getTextureID());
 
-    // Renderizado de mallas usando ModuleScene
     scene.renderMeshes();
 
-    // Desactivar las opciones de OpenGL después del renderizado
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
 
-    // Desactivar la matriz de modelo/vista
     glPopMatrix();
 
-    // Finaliza la orden de dibujo
     glFlush();
 }
 
@@ -344,18 +269,15 @@ int main(int argc, char** argv) {
         scene.setMeshes(importer.getMeshes());
 
         while (true) {
-            std::cout << "Esperando eventos..." << std::endl; // Mensaje de depuración
 
             if (!processEvents()) {
-                std::cout << "Cerrando aplicación..." << std::endl; // Mensaje de depuración
+                
                 break;
             }
-
-            std::cout << "Renderizando..." << std::endl; // Mensaje de depuración
             render();
             window.swapBuffers();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(16)); // Espera para limitar FPS
+            
         }
     }
     catch (const std::exception& e) {
