@@ -8,6 +8,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <SDL2/SDL_events.h>
 #include "MyWindow.h"
+#include "ModuleScene.h"
+#include "Mesh.h"
+#include "ModuleImporter.h"
 #include "imgui_impl_sdl2.h"
 #include <stdio.h>
 #include <assimp/cimport.h>
@@ -40,14 +43,9 @@ const char* file = "../../FBX/BakerHouse.fbx";
 const char* textureFile = "../../FBX/Baker_house.png";
 
 GLuint textureID;
-struct Mesh {
-    vector<GLfloat> vertices;
-    vector<GLuint> indices;
-    //GLuint VAO, VBO, EBO, TBO;
-    vector<GLfloat> uvCoords;
 
-};
-
+ModuleImporter importer;
+ModuleScene scene;
 bool isRightClicking = false;
 bool isAltClicking = false;
 bool shiftPressed = false;
@@ -64,73 +62,73 @@ vec3 cameraPosition(0.0f, 0.0f, 5.0f);
 vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
-vector<Mesh> meshes;
 
 
-GLuint loadTexture(const char* path) {
-    int width, height, channels;
 
-    unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-
-    if (imageData == nullptr) {
-        std::cerr << "Error: No se pudo cargar la textura " << textureFile << std::endl;
-        return 0;
-    }
-    GLuint textID;
-
-    glGenTextures(1, &textID);
-    glBindTexture(GL_TEXTURE_2D, textID);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    stbi_image_free(imageData);
-    return textID;
-}
-
-
-void loadFBX(const string& filePath) {
-    const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if (!scene) {
-        fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
-        return;
-    }
-
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-        const aiMesh* aimesh = scene->mMeshes[i];
-        printf("\nMalla %u:\n", i);
-        printf(" Numero de v�rtices: %u\n", aimesh->mNumVertices);
-
-        Mesh mesh;
-
-        for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
-            mesh.vertices.push_back(aimesh->mVertices[v].x);
-            mesh.vertices.push_back(aimesh->mVertices[v].y);
-            mesh.vertices.push_back(aimesh->mVertices[v].z);
-
-            if (aimesh->HasTextureCoords(0)) {
-                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
-                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
-            }
-            else {
-                mesh.uvCoords.push_back(0.0f);
-                mesh.uvCoords.push_back(0.0f);
-            }
-        }
-        for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
-            const aiFace& face = aimesh->mFaces[f];
-            for (unsigned int j = 0; j < face.mNumIndices; j++) {
-                mesh.indices.push_back(face.mIndices[j]);
-            }
-        }
-        meshes.push_back(mesh);
-    }
-}
+//GLuint loadTexture(const char* path) {
+//    int width, height, channels;
+//
+//    unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
+//
+//    if (imageData == nullptr) {
+//        std::cerr << "Error: No se pudo cargar la textura " << textureFile << std::endl;
+//        return 0;
+//    }
+//    GLuint textID;
+//
+//    glGenTextures(1, &textID);
+//    glBindTexture(GL_TEXTURE_2D, textID);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//
+//    stbi_image_free(imageData);
+//    return textID;
+//}
+//
+//
+//void loadFBX(const string& filePath) {
+//    const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
+//    if (!scene) {
+//        fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
+//        return;
+//    }
+//
+//    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+//        const aiMesh* aimesh = scene->mMeshes[i];
+//        printf("\nMalla %u:\n", i);
+//        printf(" Numero de v�rtices: %u\n", aimesh->mNumVertices);
+//
+//        Mesh mesh;
+//
+//        for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
+//            mesh.vertices.push_back(aimesh->mVertices[v].x);
+//            mesh.vertices.push_back(aimesh->mVertices[v].y);
+//            mesh.vertices.push_back(aimesh->mVertices[v].z);
+//
+//            if (aimesh->HasTextureCoords(0)) {
+//                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
+//                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
+//            }
+//            else {
+//                mesh.uvCoords.push_back(0.0f);
+//                mesh.uvCoords.push_back(0.0f);
+//            }
+//        }
+//        for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
+//            const aiFace& face = aimesh->mFaces[f];
+//            for (unsigned int j = 0; j < face.mNumIndices; j++) {
+//                mesh.indices.push_back(face.mIndices[j]);
+//            }
+//        }
+//        meshes.push_back(mesh);
+//    }
+//}
 
 void moveCameraWASD(float deltaTime) {
     const float baseSpeed = 2.5f;
@@ -173,8 +171,10 @@ void updateCameraPosition() {
 
 
 void render() {
+    // Limpiar buffers de color y profundidad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Configuración de la proyección y vista de la cámara
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 0.1, 100.0);
@@ -185,27 +185,30 @@ void render() {
         cameraTarget.x, cameraTarget.y, cameraTarget.z,
         cameraUp.x, cameraUp.y, cameraUp.z);
 
+    // Configuración de transparencia
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Configuración de texturas
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    for (const auto& mesh : meshes) {
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 0, mesh.uvCoords.data());
-        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+
+    // Vincula la textura usando ModuleImporter (asume que ModuleImporter maneja el ID de textura)
+    glBindTexture(GL_TEXTURE_2D, importer.getTextureID());
+
+    // Renderizado de mallas usando ModuleScene
+    scene.renderMeshes();
+
+    // Desactivar las opciones de OpenGL después del renderizado
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+
+    // Desactivar la matriz de modelo/vista
     glPopMatrix();
+
+    // Finaliza la orden de dibujo
     glFlush();
 }
-
 
 
 
@@ -288,64 +291,79 @@ static bool processEvents() {
             }
             break;
         case SDL_DROPFILE: {
-            char* droppedFile = event.drop.file;
-            printf("Archivo arrastrado: %s\n", droppedFile);
+            //    char* droppedFile = event.drop.file;
+            //    printf("Archivo arrastrado: %s\n", droppedFile);
 
-            // Liberar la textura anterior si ya estaba cargada
-            if (textureID != 0) {
-                glDeleteTextures(1, &textureID);
-                textureID = 0;
-            }
+            //    // Liberar la textura anterior si ya estaba cargada
+            //    if (textureID != 0) {
+            //        glDeleteTextures(1, &textureID);
+            //        textureID = 0;
+            //    }
 
-            // Limpiar las mallas cargadas anteriormente
-            meshes.clear();
+            //    // Limpiar las mallas cargadas anteriormente
+            //    meshes.clear();
 
-            // Cargar el nuevo archivo FBX
-            loadFBX(droppedFile);
+            //    // Cargar el nuevo archivo FBX
+            //    loadFBX(droppedFile);
 
-            // Volver a cargar la textura
-            textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
-            if (textureID == 0) {
-                std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
-            }
+            //    // Volver a cargar la textura
+            //    textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
+            //    if (textureID == 0) {
+            //        std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
+            //    }
 
-            // Liberar el path de archivo
-            SDL_free(droppedFile);
+            //    // Liberar el path de archivo
+            //    SDL_free(droppedFile);
+            //}
+
+
         }
 
-
         }
-
+        return true;
     }
-    return true;
 }
 
 int main(int argc, char** argv) {
     MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+    importer.setWindow(&window);
 
     init_openGL();
-    loadFBX(file);
-    textureID = loadTexture(textureFile);
-    if (textureID == 0) {
-        cerr << "Error: La textura no se pudo cargar correctamente." << endl;
+
+    // Carga el modelo y la textura
+    if (!importer.loadFBX(file) || (textureID = importer.loadTexture(textureFile)) == 0) {
+        std::cerr << "Error al cargar modelo o textura." << std::endl;
         return -1;
     }
 
+    // Configura las mallas en ModuleScene
+    scene.setMeshes(importer.getMeshes());
 
+    if ((textureID = importer.loadTexture(textureFile)) == 0) {
+        std::cerr << "Error al cargar la textura." << std::endl;
+        return -1;
+    }
+
+    // Ciclo principal del programa
     while (processEvents()) {
         const auto t0 = hrclock::now();
         float deltaTime = chrono::duration<float>(FRAME_DT).count();
 
+        // Mover la cámara solo si el botón derecho está presionado
         if (isRightClicking) {
             moveCameraWASD(deltaTime);
         }
 
+        // Renderizar la escena
         render();
         window.swapBuffers();
 
+        // Controlar el tiempo de fotogramas
         const auto t1 = hrclock::now();
-        const auto dt = t1 - t0;
-        if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+        auto elapsedTime = chrono::duration<float>(t1 - t0).count();
+        if (elapsedTime < FRAME_DT.count()) {
+            std::this_thread::sleep_for(FRAME_DT - chrono::duration<float>(elapsedTime));
+        }
     }
 
     return 0;
