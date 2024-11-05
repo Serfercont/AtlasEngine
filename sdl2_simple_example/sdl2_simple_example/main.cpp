@@ -320,51 +320,49 @@ static bool processEvents() {
         }
 
         }
-        return true;
+       
     }
+    return true;
 }
-
 int main(int argc, char** argv) {
-    MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
-    importer.setWindow(&window);
+    try {
+        MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+        importer.setWindow(&window);
+        init_openGL();
 
-    init_openGL();
-
-    // Carga el modelo y la textura
-    if (!importer.loadFBX(file) || (textureID = importer.loadTexture(textureFile)) == 0) {
-        std::cerr << "Error al cargar modelo o textura." << std::endl;
-        return -1;
-    }
-
-    // Configura las mallas en ModuleScene
-    scene.setMeshes(importer.getMeshes());
-
-    if ((textureID = importer.loadTexture(textureFile)) == 0) {
-        std::cerr << "Error al cargar la textura." << std::endl;
-        return -1;
-    }
-
-    // Ciclo principal del programa
-    while (processEvents()) {
-        const auto t0 = hrclock::now();
-        float deltaTime = chrono::duration<float>(FRAME_DT).count();
-
-        // Mover la cámara solo si el botón derecho está presionado
-        if (isRightClicking) {
-            moveCameraWASD(deltaTime);
+        // Cargar el modelo y la textura
+        if (!importer.loadFBX(file)) {
+            std::cerr << "Error al cargar el archivo FBX: " << file << std::endl;
+            return -1;
         }
 
-        // Renderizar la escena
-        render();
-        window.swapBuffers();
+        if ((textureID = importer.loadTexture(textureFile)) == 0) {
+            std::cerr << "Error al cargar la textura: " << textureFile << std::endl;
+            return -1;
+        }
 
-        // Controlar el tiempo de fotogramas
-        const auto t1 = hrclock::now();
-        auto elapsedTime = chrono::duration<float>(t1 - t0).count();
-        if (elapsedTime < FRAME_DT.count()) {
-            std::this_thread::sleep_for(FRAME_DT - chrono::duration<float>(elapsedTime));
+        scene.setMeshes(importer.getMeshes());
+
+        while (true) {
+            std::cout << "Esperando eventos..." << std::endl; // Mensaje de depuración
+
+            if (!processEvents()) {
+                std::cout << "Cerrando aplicación..." << std::endl; // Mensaje de depuración
+                break;
+            }
+
+            std::cout << "Renderizando..." << std::endl; // Mensaje de depuración
+            render();
+            window.swapBuffers();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(16)); // Espera para limitar FPS
         }
     }
-
+    catch (const std::exception& e) {
+        std::cerr << "Excepción: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "Excepción desconocida." << std::endl;
+    }
     return 0;
 }
