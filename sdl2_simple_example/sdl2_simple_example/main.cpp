@@ -19,6 +19,7 @@
 #include <IL/il.h>
 #include <locale>
 #include <codecvt>
+#include "Logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -107,9 +108,9 @@ void loadFBX(const string& filePath) {
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         const aiMesh* aimesh = scene->mMeshes[i];
         std::string mensaje = "Se ha cargado la malla " + std::to_string(i);// Construye el mensaje de carga de malla con el índice `i`
-        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
+        logger.SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes.
         mensaje = "Numero de vertices " + std::to_string(aimesh->mNumVertices);// Construye un mensaje que incluye el número de vértices de la malla `aimesh`
-        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
+        logger.SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes.
         printf(" Numero de vertices: %u\n", aimesh->mNumVertices);
 
         Mesh mesh;
@@ -217,23 +218,23 @@ void render() {
 
 static void init_openGL() {
     glewInit(); 
-    SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente.");
+    logger.SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente.");
 
     if (!GLEW_VERSION_3_0)
     {
         throw exception("OpenGL 3.0 API no esta disponible.");
-        SaveMessage("[ERROR] [OpenGL] Error al cargar o inicializar OpenGL 3.0. Verifique los controladores o la configuracion del sistema.");
+        logger.SaveMessage("[ERROR] [OpenGL] Error al cargar o inicializar OpenGL 3.0. Verifique los controladores o la configuracion del sistema.");
     }
     else
     {
-        SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
+        logger.SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
     }  
     
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
     ilInit();
-    SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
+    logger.SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
 }
 
 
@@ -325,7 +326,7 @@ static bool processEvents() {
             textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
             if (textureID == 0) {
                 std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
-                SaveMessage("Error: No se pudo cargar la nueva textura ");
+                logger.SaveMessage("Error: No se pudo cargar la nueva textura ");
             }
 
             // Liberar el path de archivo

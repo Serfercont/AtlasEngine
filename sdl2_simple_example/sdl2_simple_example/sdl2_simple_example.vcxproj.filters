@@ -5,10 +5,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModuleInterface.cpp" />
     <ClCompile Include="MyWindow.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="ModuleInterface.h" />
     <ClInclude Include="MyWindow.h" />
+    <ClInclude Include="Logger.h" />
   </ItemGroup>
 </Project>

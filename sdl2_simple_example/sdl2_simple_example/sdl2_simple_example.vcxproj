@@ -128,12 +128,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModuleInterface.cpp" />
     <ClCompile Include="MyWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="ModuleInterface.h" />
     <ClInclude Include="MyWindow.h" />
   </ItemGroup>

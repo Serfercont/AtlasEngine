@@ -11,9 +11,6 @@ bool showConsole = true;
 bool showConfiguration = false;
 bool showHierarchy = false;
 
-std::vector<std::string> logMessages;
-int LogSize = 0;
-
 void RenderImGuiMenus(bool& showAbout)
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -305,14 +302,13 @@ void RenderImGuiMenus(bool& showAbout)
         ImGui::Begin("Console", &showConsole);
         if (ImGui::SmallButton("Clear"))
         {
-            logMessages.clear();
-            LogSize = 0;
+            logger.ClearLog();
         }
         ImGui::Separator();
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
         {
-           LogInConsole(LogSize); 
+           logger.LogInConsole(); 
         }
         ImGui::EndChild();
         ImGui::End();
@@ -340,21 +336,6 @@ void RenderImGuiMenus(bool& showAbout)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
-void LogInConsole(int ListSize)
-{
-    for (size_t i = 0; i < ListSize; i++)
-    {
-        ImGui::Text("%s", logMessages[i].c_str());
-    }
-}
-
-void SaveMessage(const char* message)
-{
-    logMessages.push_back(message);
-    LogSize++;
-}
-
 
 void Docking()
 {
