@@ -54,7 +54,6 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
         std::vector<float> uvCoords;
         std::vector<unsigned int> indices;
 
-        // Procesar los vértices y coordenadas de textura
         for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
             vertices.push_back(aimesh->mVertices[v].x);
             vertices.push_back(aimesh->mVertices[v].y);
@@ -65,12 +64,11 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
                 uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
             }
             else {
-                uvCoords.push_back(0.0f); // Coordenadas de textura por defecto si no existen
+                uvCoords.push_back(0.0f); 
                 uvCoords.push_back(0.0f);
             }
         }
 
-        // Procesar los índices de las caras
         for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
             const aiFace& face = aimesh->mFaces[f];
             for (unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -78,14 +76,12 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
             }
         }
 
-        // Crear el objeto Mesh y el GameObject asociado
         Mesh* mesh = new Mesh(vertices, uvCoords, indices);
-        GameObject* gameObject = new GameObject(mesh, nullptr);  // Crear GameObject sin textura inicial
+        GameObject* gameObject = new GameObject(mesh, nullptr);  
 
-        // Agregar el GameObject a la escena
+    
         scene->addGameObject(gameObject);
 
-        // Guardar la malla en el vector interno si es necesario
         meshes.push_back(*mesh);
     }
     return true;

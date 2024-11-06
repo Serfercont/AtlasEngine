@@ -272,6 +272,11 @@ int main(int argc, char** argv) {
             if (!processEvents()) {
                 break;
             }
+            float deltaTime = chrono::duration<float>(FRAME_DT).count();
+
+            if (isRightClicking) {
+                moveCameraWASD(deltaTime);
+            }
             render();
             window.swapBuffers();
         }
