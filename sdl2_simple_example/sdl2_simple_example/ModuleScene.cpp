@@ -4,6 +4,7 @@
 ModuleScene::ModuleScene() {}
 
 ModuleScene::~ModuleScene() {
+    // Liberar memoria de los GameObjects y sus texturas
     for (GameObject* obj : gameObjects) {
         delete obj;
     }
@@ -11,55 +12,84 @@ ModuleScene::~ModuleScene() {
 }
 
 void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
+    // Crear un nuevo Mesh
     Mesh* mesh = new Mesh(vertices, uvs, indices);
-    GameObject* gameObject = new GameObject(mesh, nullptr); // Inicializa con textura nula
 
-    gameObject->setTransform(transform); // Establece la transformación del objeto
+    // Crear un nuevo GameObject con el Mesh y sin textura inicial
+    GameObject* gameObject = new GameObject(mesh, nullptr);
+    gameObject->setTransform(transform);
 
-    gameObjects.push_back(gameObject); // Agrega el objeto a la lista
-    gameObjectNames.push_back(name); // Guarda el nombre del objeto
+    // Almacenar el GameObject en el vector de la escena
+    gameObjects.push_back(gameObject);
+    gameObjectNames.push_back(name);
 }
 
-// Ejemplo para cargar texturas después de agregar varios GameObjects
 void ModuleScene::setTexture(GLuint textureID) {
-    Texture* newTexture = new Texture(textureID); // Crea una nueva textura
+    // Crear una nueva textura con el ID proporcionado
+    Texture* newTexture = new Texture(textureID);
 
+    // Asignar la textura a todos los GameObjects existentes
     for (auto& obj : gameObjects) {
-        obj->setTexture(newTexture); // Asigna la textura a cada objeto
+        obj->setTexture(newTexture);
     }
 }
 
 void ModuleScene::setCheckerTexture(GLuint checkerTextureID) {
+    // Usar el mismo método de setTexture para asignar la textura a todos los GameObjects
     setTexture(checkerTextureID);
 }
 
 void ModuleScene::drawScene() {
+    // Limpiar el buffer de color y profundidad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Dibujar cada GameObject en la escena
     for (const auto& obj : gameObjects) {
         glPushMatrix();  // Guardar la matriz actual
 
-        obj->draw();  // Dibujar el objeto
+        obj->draw();     // Llamar al método draw de cada GameObject
 
-        glPopMatrix();   // Restaurar la matriz previa
+        glPopMatrix();   // Restaurar la matriz original
     }
 }
 
 void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
-    meshes = newMeshes;
+    // Limpiar las mallas anteriores
+    meshes.clear();
+    gameObjects.clear();  // Limpiar GameObjects anteriores también
+
+    // Crear un GameObject para cada nuevo Mesh en el vector de mallas
+    for (const auto& mesh : newMeshes) {
+        Mesh* newMesh = new Mesh(mesh.vertices, mesh.uvCoords, mesh.indices);
+        GameObject* gameObject = new GameObject(newMesh, nullptr); // Inicialmente sin textura
+
+        gameObjects.push_back(gameObject);
+    }
 }
 
-void ModuleScene::renderMeshes() const {
-    for (const auto& mesh : meshes) {
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
+void ModuleScene::renderMeshes() {
+    for (GameObject* gameObject : gameObjects) {
+        if (Mesh* mesh = gameObject->getMesh()) {
+            glBegin(GL_TRIANGLES);
+            for (size_t i = 0; i < mesh->indices.size(); i += 3) {
+                unsigned int index1 = mesh->indices[i];
+                unsigned int index2 = mesh->indices[i + 1];
+                unsigned int index3 = mesh->indices[i + 2];
 
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 0, mesh.uvCoords.data());
+                glTexCoord2f(mesh->uvCoords[index1 * 2], mesh->uvCoords[index1 * 2 + 1]);
+                glVertex3f(mesh->vertices[index1 * 3], mesh->vertices[index1 * 3 + 1], mesh->vertices[index1 * 3 + 2]);
 
-        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
+                glTexCoord2f(mesh->uvCoords[index2 * 2], mesh->uvCoords[index2 * 2 + 1]);
+                glVertex3f(mesh->vertices[index2 * 3], mesh->vertices[index2 * 3 + 1], mesh->vertices[index2 * 3 + 2]);
 
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glTexCoord2f(mesh->uvCoords[index3 * 2], mesh->uvCoords[index3 * 2 + 1]);
+                glVertex3f(mesh->vertices[index3 * 3], mesh->vertices[index3 * 3 + 1], mesh->vertices[index3 * 3 + 2]);
+            }
+            glEnd();
+        }
     }
+}
+
+void ModuleScene::addGameObject(GameObject* gameObject) {
+    gameObjects.push_back(gameObject);
 }

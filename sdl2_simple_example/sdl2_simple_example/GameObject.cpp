@@ -2,32 +2,29 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Constructor
-GameObject::GameObject(Mesh* mesh, Texture* texture)
-    : mesh(mesh), texture(texture), transform() {} // Inicializa la transformación por defecto
 
-// Destructor
+GameObject::GameObject(Mesh* mesh, Texture* texture)
+    : mesh(mesh), texture(texture), transform() {} 
+
 GameObject::~GameObject() {
-    delete mesh;          // Libera la malla
-    delete texture;       // Libera la textura si existe
+    delete mesh;          
+    delete texture;       
 }
 
-// Establece una nueva textura
 void GameObject::setTexture(Texture* newTexture) {
-    if (texture) delete texture; // Libera la textura anterior
+    if (texture) delete texture;
     texture = newTexture;
 }
 
-// Establece la transformación del objeto
+
 void GameObject::setTransform(const Transform& newTransform) {
-    transform = newTransform; // Asigna la nueva transformación
+    transform = newTransform; 
 }
 
-// Dibuja el objeto en la escena
-void GameObject::draw() const {
-    glPushMatrix(); // Guardar la matriz actual
 
-    // Aplica las transformaciones
+void GameObject::draw() const {
+    glPushMatrix();
+
     glTranslatef(transform.position.x, transform.position.y, transform.position.z);
     glRotatef(transform.rotation.x, 1.0f, 0.0f, 0.0f);
     glRotatef(transform.rotation.y, 0.0f, 1.0f, 0.0f);
@@ -35,14 +32,14 @@ void GameObject::draw() const {
     glScalef(transform.scale.x, transform.scale.y, transform.scale.z);
 
     if (texture) {
-        texture->bind(); // Vincula la textura si está disponible
+        texture->bind(); 
     }
     if (mesh) {
-        mesh->render(); // Renderiza la malla
+        mesh->render();
     }
     if (texture) {
-        texture->unbind(); // Desvincula la textura
+        texture->unbind(); 
     }
 
-    glPopMatrix(); // Restaurar la matriz anterior
+    glPopMatrix(); 
 }

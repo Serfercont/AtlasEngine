@@ -1,6 +1,6 @@
 #pragma once
 
-	void InitImGuiMenus();//inicializar menus
+	void InitImGuiMenus();
 
 	void RenderImGuiMenus(bool& showAbout);
 

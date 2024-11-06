@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include "glm/glm.hpp"
 #include "MyWindow.h"
+#include "ModuleScene.h"
 #include "Mesh.h"
 
 class ModuleImporter {
@@ -12,7 +13,7 @@ public:
     ModuleImporter();
     ~ModuleImporter();
 
-    bool loadFBX(const std::string& filePath);
+    bool loadFBX(const std::string& filePath, ModuleScene* scene);
     GLuint loadTexture(const char*);
 
     GLuint getTextureID() { return textureID; }

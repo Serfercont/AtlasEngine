@@ -10,6 +10,7 @@
 #include "MyWindow.h"
 #include "ModuleScene.h"
 #include "Mesh.h"
+#include "GameObject.h"
 #include "ModuleImporter.h"
 #include "imgui_impl_sdl2.h"
 #include <stdio.h>
@@ -46,6 +47,7 @@ GLuint textureID;
 
 ModuleImporter importer;
 ModuleScene scene;
+
 bool isRightClicking = false;
 bool isAltClicking = false;
 bool shiftPressed = false;
@@ -124,6 +126,7 @@ void render() {
 
     glBindTexture(GL_TEXTURE_2D, importer.getTextureID());
 
+    // Renderizar todos los GameObjects en la escena
     scene.renderMeshes();
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -136,10 +139,9 @@ void render() {
 }
 
 
-
 static void init_openGL() {
     glewInit();
-    if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API no est� disponible.");
+    if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API no esta disponible.");
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -256,7 +258,7 @@ int main(int argc, char** argv) {
         init_openGL();
 
         // Cargar el modelo y la textura
-        if (!importer.loadFBX(file)) {
+        if (!importer.loadFBX(file, &scene)) {  // Pasamos `&scene` a `loadFBX`
             std::cerr << "Error al cargar el archivo FBX: " << file << std::endl;
             return -1;
         }
@@ -266,18 +268,12 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        scene.setMeshes(importer.getMeshes());
-
         while (true) {
-
             if (!processEvents()) {
-                
                 break;
             }
             render();
             window.swapBuffers();
-
-            
         }
     }
     catch (const std::exception& e) {

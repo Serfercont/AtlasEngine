@@ -11,13 +11,14 @@ public:
     void setTexture(GLuint textureID);
     void setCheckerTexture(GLuint checkerTextureID);
     void drawScene();
-    void setMeshes(const std::vector<Mesh>& meshes);  // Configura las mallas a renderizar
-    void renderMeshes() const;  // Renderiza las mallas
+    void setMeshes(const std::vector<Mesh>& meshes);
+    void renderMeshes();
+
+    void addGameObject(GameObject* gameObject);
 
     std::vector<GameObject*> gameObjects;
     std::vector<std::string> gameObjectNames;
 
-    // Índice del objeto seleccionado (-1 si no hay ninguno)
     int selectedGameObjectIndex = -1;
 private:
     std::vector<Mesh> meshes;
