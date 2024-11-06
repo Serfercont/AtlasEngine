@@ -10,6 +10,7 @@
 bool showConsole = true;
 bool showConfiguration = false;
 bool showHierarchy = false;
+bool showInspector = false;
 
 void RenderImGuiMenus(bool& showAbout)
 {
@@ -264,6 +265,10 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 showHierarchy = true;
             }
+            if (ImGui::MenuItem("Inspector"))
+            {
+                showInspector = true;
+            }
             ImGui::EndMenu();
         }
 
@@ -288,8 +293,7 @@ void RenderImGuiMenus(bool& showAbout)
         ImGui::TextWrapped("Atlas Engine is a 3D rendering engine developed by Sergio Fernandez, Pau Blanco, and Carlos Gonzalez as part of the Game Engines course at CITM - UPC Terrassa in 2024."
             "The engine is built using technologies such as SDL, OpenGL, ImGUI, DevIL, Assimp, MathGeoLib, Parson, and PhysFS, enabling a smooth and efficient graphical experience for game development.");
 
-        ImGui::Separator();
-        ImGui::TextWrapped("Components:");
+        ImGui::SeparatorText("Components");
         ImGui::TextWrapped("Vendor: %s", glGetString(GL_VENDOR));
         ImGui::TextWrapped("Renderer: %s", glGetString(GL_RENDERER));
         ImGui::TextWrapped("OpenGL version supported %s", glGetString(GL_VERSION));
@@ -317,19 +321,37 @@ void RenderImGuiMenus(bool& showAbout)
     if (showConfiguration)
     {
         ImGui::Begin("Configuration", &showConfiguration);
+        ImGui::SeparatorText("FPS");
         static float frameRateValues[90] = {};
         static int offset = 0;
         frameRateValues[offset] = frameRate;
         offset = (offset+1)% IM_ARRAYSIZE(frameRateValues);
         char overlay[32];
         sprintf_s(overlay, "avg FPS: %.1f", frameRate);
-        ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines("", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 100.0f, ImVec2(ImGui::GetWindowWidth() - 15, 100.0f), 0);
+
+        ImGui::SeparatorText("Libraries versions");
+
+        ImGui::TextWrapped("OpenGL version: %s", glGetString(GL_VERSION));
+        SDL_version compiled;
+        SDL_version linked;
+        SDL_VERSION(&compiled);
+        SDL_GetVersion(&linked);
+        ImGui::TextWrapped("SDL version: %u.%u.%u \n",compiled.major, compiled.minor, compiled.patch);
+        ImGui::TextWrapped("ImGui version: %s\n", IMGUI_VERSION);
+
         ImGui::End();
     }
 
     if (showHierarchy)
     {
         ImGui::Begin("Hierarchy", &showHierarchy);
+        ImGui::End();
+    }
+
+    if (showInspector)
+    {
+        ImGui::Begin("Inspector", &showInspector);
         ImGui::End();
     }
 

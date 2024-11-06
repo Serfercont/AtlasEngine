@@ -29,7 +29,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 130");
-    logger.SaveMessage("[INFO][ImGui] Carga e inicializacion completadas correctamente.");
+    logger.SaveMessage("[INFO] [ImGui] Initializing ImGui...\n[INFO] [ImGui] Load and initialization completed successfully.");
 }
 
 MyWindow::~MyWindow() {

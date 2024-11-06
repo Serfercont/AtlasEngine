@@ -218,7 +218,7 @@ void render() {
 
 static void init_openGL() {
     glewInit(); 
-    logger.SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente.");
+    logger.SaveMessage("[INFO] [Glew] Initializing Glew...\n[INFO] [Glew] Load and initialization completed successfully.");
 
     if (!GLEW_VERSION_3_0)
     {
@@ -227,14 +227,14 @@ static void init_openGL() {
     }
     else
     {
-        logger.SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
+        logger.SaveMessage("[INFO] [OpenGL] Initializing OpenGL...\n[INFO] [OpenGL] Load and initialization completed successfully.");
     }  
     
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
     ilInit();
-    logger.SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
+    logger.SaveMessage("[INFO] [Devil] Initializing Devil...\n[INFO] [Devil] Load and initialization completed successfully.");
 }
 
 
