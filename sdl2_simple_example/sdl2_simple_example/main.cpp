@@ -216,12 +216,24 @@ void render() {
 
 
 static void init_openGL() {
-    glewInit();
-    if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API no est� disponible.");
+    glewInit(); 
+    SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente.");
+
+    if (!GLEW_VERSION_3_0)
+    {
+        throw exception("OpenGL 3.0 API no esta disponible.");
+        SaveMessage("[ERROR] [OpenGL] Error al cargar o inicializar OpenGL 3.0. Verifique los controladores o la configuracion del sistema.");
+    }
+    else
+    {
+        SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
+    }  
+    
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
     ilInit();
+    SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
 }
 
 
@@ -359,9 +371,7 @@ int main(int argc, char** argv) {
         std::chrono::duration<double> elapsed = currentTime - startTime;
         if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
         if (elapsed.count() >= 1.0) { // 1.0 representa un segundo
-            std::cout << "Ha pasado 1 segundo." << std::endl;
             frameRate = frames / elapsed.count();
-            std::cout << "FPS: " << frameRate << std::endl;
             frames = 0;
             // Reiniciar el tiempo de inicio para otro intervalo de un segundo
             startTime = currentTime;
