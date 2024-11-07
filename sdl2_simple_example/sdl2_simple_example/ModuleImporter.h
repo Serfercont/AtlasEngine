@@ -11,7 +11,6 @@
 class ModuleImporter {
 public:
     ModuleImporter();
-    ~ModuleImporter();
 
     bool loadFBX(const std::string& filePath, ModuleScene* scene, const char* textureFile);
     GLuint loadTexture(const char*);

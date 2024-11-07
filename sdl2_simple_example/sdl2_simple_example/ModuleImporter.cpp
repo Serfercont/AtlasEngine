@@ -26,11 +26,6 @@ ModuleImporter::ModuleImporter() {
     ilutRenderer(ILUT_OPENGL);
 }
 
-ModuleImporter::~ModuleImporter() {
-    if (textureID) {
-        glDeleteTextures(1, &textureID);
-    }
-}
 
 void ModuleImporter::setWindow(MyWindow* window) {
     _window = window;

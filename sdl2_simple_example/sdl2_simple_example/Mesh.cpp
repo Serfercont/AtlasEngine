@@ -5,13 +5,6 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<float>& uvs, co
     setupMesh();
 }
 
-Mesh::~Mesh() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vboVertices);
-    glDeleteBuffers(1, &vboUVs);
-    glDeleteBuffers(1, &ebo);
-}
-
 void Mesh::setupMesh() {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vboVertices);

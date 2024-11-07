@@ -6,7 +6,6 @@
 class ModuleScene {
 public:
     ModuleScene();
-    ~ModuleScene();
     void loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform = Transform());
     void setTexture(GLuint textureID);
     void setCheckerTexture(GLuint checkerTextureID);

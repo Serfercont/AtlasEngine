@@ -6,10 +6,6 @@
 GameObject::GameObject(Mesh* mesh, Texture* texture)
     : mesh(mesh), texture(texture), transform() {} 
 
-GameObject::~GameObject() {
-    delete mesh;          
-    delete texture;       
-}
 
 void GameObject::setTexture(Texture* newTexture) {
     if (texture) delete texture;

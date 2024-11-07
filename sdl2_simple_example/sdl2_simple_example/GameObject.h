@@ -6,7 +6,6 @@
 class GameObject {
 public:
     GameObject(Mesh* mesh, Texture* texture);
-    ~GameObject();
 
     void draw() const;
     void setTexture(Texture* texture);
