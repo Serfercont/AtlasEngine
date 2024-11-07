@@ -21,6 +21,14 @@ void GameObject::setTransform(const Transform& newTransform) {
     transform = newTransform; 
 }
 
+Texture* GameObject::getTexture() const {
+    return texture;
+}
+
+Mesh* GameObject::getMesh() const {
+    return mesh;
+}
+
 
 void GameObject::draw() const {
     glPushMatrix();

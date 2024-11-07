@@ -126,7 +126,6 @@ void render() {
 
     glBindTexture(GL_TEXTURE_2D, importer.getTextureID());
 
-    // Renderizar todos los GameObjects en la escena
     scene.renderMeshes();
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -218,56 +217,51 @@ static bool processEvents() {
             }
             break;
         case SDL_DROPFILE: {
-            //    char* droppedFile = event.drop.file;
-            //    printf("Archivo arrastrado: %s\n", droppedFile);
+            char* droppedFile = event.drop.file;
+            printf("Archivo arrastrado: %s\n", droppedFile);
 
-            //    // Liberar la textura anterior si ya estaba cargada
-            //    if (textureID != 0) {
-            //        glDeleteTextures(1, &textureID);
-            //        textureID = 0;
-            //    }
+            if (textureID != 0) {
+                glDeleteTextures(1, &textureID);
+                textureID = 0;
+            }
 
-            //    // Limpiar las mallas cargadas anteriormente
-            //    meshes.clear();
+            
+            //scene.clearGameObjects();
 
-            //    // Cargar el nuevo archivo FBX
-            //    loadFBX(droppedFile);
+            if (!importer.loadFBX(droppedFile, &scene, textureFile)) {
+                std::cerr << "Error al cargar el archivo FBX: " << droppedFile << std::endl;
+            }
+            else {
+                textureID = importer.getTextureID();
+                if (textureID == 0) {
+                    std::cerr << "Error: No se pudo cargar la nueva textura desde " << textureFile << std::endl;
+                }
+                else {
+                    scene.setTexture(textureID);
+                }
+            }
 
-            //    // Volver a cargar la textura
-            //    textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
-            //    if (textureID == 0) {
-            //        std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
-            //    }
-
-            //    // Liberar el path de archivo
-            //    SDL_free(droppedFile);
-            //}
-
-
+            SDL_free(droppedFile);
+            break;
         }
-
-        }
-       
-    }
-    return true;
+		}
+	}
+	return true;
 }
+
 int main(int argc, char** argv) {
     try {
         MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
         importer.setWindow(&window);
         init_openGL();
 
-        // Cargar el modelo y la textura
-        if (!importer.loadFBX(file, &scene)) {  // Pasamos `&scene` a `loadFBX`
+        
+        if (!importer.loadFBX(file, &scene, textureFile)) { 
             std::cerr << "Error al cargar el archivo FBX: " << file << std::endl;
             return -1;
         }
 
-        if ((textureID = importer.loadTexture(textureFile)) == 0) {
-            std::cerr << "Error al cargar la textura: " << textureFile << std::endl;
-            return -1;
-        }
-
+		//scene.drawScene();
         while (true) {
             if (!processEvents()) {
                 break;

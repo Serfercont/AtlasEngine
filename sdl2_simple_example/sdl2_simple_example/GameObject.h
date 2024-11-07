@@ -11,8 +11,8 @@ public:
     void draw() const;
     void setTexture(Texture* texture);
 
-    Texture* getTexture() const { return texture; }
-    Mesh* getMesh() const { return mesh; }
+    Texture* getTexture() const;
+    Mesh* getMesh() const;
 
     void setTransform(const Transform& newTransform);
 

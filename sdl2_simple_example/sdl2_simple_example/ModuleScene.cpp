@@ -4,7 +4,6 @@
 ModuleScene::ModuleScene() {}
 
 ModuleScene::~ModuleScene() {
-    // Liberar memoria de los GameObjects y sus texturas
     for (GameObject* obj : gameObjects) {
         delete obj;
     }
@@ -12,56 +11,46 @@ ModuleScene::~ModuleScene() {
 }
 
 void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
-    // Crear un nuevo Mesh
     Mesh* mesh = new Mesh(vertices, uvs, indices);
 
-    // Crear un nuevo GameObject con el Mesh y sin textura inicial
     GameObject* gameObject = new GameObject(mesh, nullptr);
     gameObject->setTransform(transform);
 
-    // Almacenar el GameObject en el vector de la escena
     gameObjects.push_back(gameObject);
     gameObjectNames.push_back(name);
 }
 
 void ModuleScene::setTexture(GLuint textureID) {
-    // Crear una nueva textura con el ID proporcionado
     Texture* newTexture = new Texture(textureID);
-
-    // Asignar la textura a todos los GameObjects existentes
     for (auto& obj : gameObjects) {
         obj->setTexture(newTexture);
     }
 }
 
 void ModuleScene::setCheckerTexture(GLuint checkerTextureID) {
-    // Usar el mismo método de setTexture para asignar la textura a todos los GameObjects
     setTexture(checkerTextureID);
 }
 
 void ModuleScene::drawScene() {
-    // Limpiar el buffer de color y profundidad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Dibujar cada GameObject en la escena
     for (const auto& obj : gameObjects) {
-        glPushMatrix();  // Guardar la matriz actual
+        glPushMatrix();  
 
-        obj->draw();     // Llamar al método draw de cada GameObject
+        obj->draw();    
 
-        glPopMatrix();   // Restaurar la matriz original
+        glPopMatrix(); 
     }
 }
 
 void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
-    // Limpiar las mallas anteriores
     meshes.clear();
-    gameObjects.clear();  // Limpiar GameObjects anteriores también
+    gameObjects.clear();  
 
-    // Crear un GameObject para cada nuevo Mesh en el vector de mallas
+    
     for (const auto& mesh : newMeshes) {
         Mesh* newMesh = new Mesh(mesh.vertices, mesh.uvCoords, mesh.indices);
-        GameObject* gameObject = new GameObject(newMesh, nullptr); // Inicialmente sin textura
+        GameObject* gameObject = new GameObject(newMesh, nullptr); 
 
         gameObjects.push_back(gameObject);
     }
@@ -70,6 +59,10 @@ void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
 void ModuleScene::renderMeshes() {
     for (GameObject* gameObject : gameObjects) {
         if (Mesh* mesh = gameObject->getMesh()) {
+            if (Texture* texture = gameObject->getTexture()) {
+                glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
+            }
+
             glBegin(GL_TRIANGLES);
             for (size_t i = 0; i < mesh->indices.size(); i += 3) {
                 unsigned int index1 = mesh->indices[i];
@@ -86,9 +79,22 @@ void ModuleScene::renderMeshes() {
                 glVertex3f(mesh->vertices[index3 * 3], mesh->vertices[index3 * 3 + 1], mesh->vertices[index3 * 3 + 2]);
             }
             glEnd();
+
+            glBindTexture(GL_TEXTURE_2D, 0); 
+
         }
     }
 }
+
+void ModuleScene::clearGameObjects() {
+    for (GameObject* obj : gameObjects) {
+        delete obj;
+    }
+    gameObjects.clear();
+    gameObjectNames.clear();
+    meshes.clear();
+}
+
 
 void ModuleScene::addGameObject(GameObject* gameObject) {
     gameObjects.push_back(gameObject);

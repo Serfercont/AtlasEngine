@@ -15,7 +15,7 @@ public:
     void setupMesh();
     void render() const;
 
-    // Getter methods for mesh information
+  
     const std::vector<float>& getVertices() const { return vertices; }
     const std::vector<float>& getUVs() const { return uvCoords; }
     const std::vector<GLuint>& getIndices() const { return indices; }

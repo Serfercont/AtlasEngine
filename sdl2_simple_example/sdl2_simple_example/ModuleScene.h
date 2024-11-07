@@ -14,6 +14,8 @@ public:
     void setMeshes(const std::vector<Mesh>& meshes);
     void renderMeshes();
 
+    void clearGameObjects();
+
     void addGameObject(GameObject* gameObject);
 
     std::vector<GameObject*> gameObjects;

@@ -13,7 +13,7 @@ public:
     ModuleImporter();
     ~ModuleImporter();
 
-    bool loadFBX(const std::string& filePath, ModuleScene* scene);
+    bool loadFBX(const std::string& filePath, ModuleScene* scene, const char* textureFile);
     GLuint loadTexture(const char*);
 
     GLuint getTextureID() { return textureID; }
@@ -21,7 +21,7 @@ public:
     GLuint getTextureID() const;
 
     void setWindow(MyWindow* window);
-    const std::vector<Mesh>& getMeshes() const;  // Declaración del método getMeshes
+    const std::vector<Mesh>& getMeshes() const; 
     std::vector<Mesh> meshes;
 
 

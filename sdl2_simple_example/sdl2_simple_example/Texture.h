@@ -10,6 +10,5 @@ public:
     void bind() const;
     void unbind() const;
 
-    // Getter for texture ID
     GLuint getTextureID() const { return id; }
 };

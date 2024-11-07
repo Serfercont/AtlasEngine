@@ -36,7 +36,7 @@ void ModuleImporter::setWindow(MyWindow* window) {
     _window = window;
 }
 
-bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
+bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, const char* textureFile) {
     Assimp::Importer importer;
     const aiScene* ai_scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -44,6 +44,9 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
         fprintf(stderr, "Error al cargar el archivo: %s\n", importer.GetErrorString());
         return false;
     }
+
+    GLuint textureID = loadTexture(textureFile);
+    Texture* texture = new Texture(textureID);
     
     for (unsigned int i = 0; i < ai_scene->mNumMeshes; i++) {
         const aiMesh* aimesh = ai_scene->mMeshes[i];
@@ -77,7 +80,7 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene) {
         }
 
         Mesh* mesh = new Mesh(vertices, uvCoords, indices);
-        GameObject* gameObject = new GameObject(mesh, nullptr);  
+        GameObject* gameObject = new GameObject(mesh, texture);  
 
     
         scene->addGameObject(gameObject);
