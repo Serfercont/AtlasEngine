@@ -3,13 +3,6 @@
 
 ModuleScene::ModuleScene() {}
 
-ModuleScene::~ModuleScene() {
-    for (GameObject* obj : gameObjects) {
-        delete obj;
-    }
-    gameObjects.clear();
-}
-
 void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
     Mesh* mesh = new Mesh(vertices, uvs, indices);
 
@@ -87,13 +80,17 @@ void ModuleScene::renderMeshes() {
 }
 
 void ModuleScene::clearGameObjects() {
-    for (GameObject* obj : gameObjects) {
-        delete obj;
+    for (GameObject*& obj : gameObjects) {
+        if (obj) { 
+            delete obj;
+            obj = nullptr;  
+        }
     }
     gameObjects.clear();
     gameObjectNames.clear();
     meshes.clear();
 }
+
 
 
 void ModuleScene::addGameObject(GameObject* gameObject) {

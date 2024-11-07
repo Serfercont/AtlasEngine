@@ -226,7 +226,7 @@ static bool processEvents() {
             }
 
             
-            //scene.clearGameObjects();
+            scene.clearGameObjects();
 
             if (!importer.loadFBX(droppedFile, &scene, textureFile)) {
                 std::cerr << "Error al cargar el archivo FBX: " << droppedFile << std::endl;

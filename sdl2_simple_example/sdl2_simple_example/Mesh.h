@@ -10,7 +10,6 @@ public:
     GLuint vao, vboVertices, vboUVs, ebo;
 
     Mesh(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices);
-    ~Mesh();
 
     void setupMesh();
     void render() const;
