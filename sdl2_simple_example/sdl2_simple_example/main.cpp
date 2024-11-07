@@ -9,6 +9,10 @@
 #include <SDL2/SDL_events.h>
 #include "MyWindow.h"
 #include "ModuleInterface.h"
+#include "ModuleScene.h"
+#include "Mesh.h"
+#include "GameObject.h"
+#include "ModuleImporter.h"
 #include "imgui_impl_sdl2.h"
 #include <stdio.h>
 #include <assimp/cimport.h>
@@ -43,13 +47,9 @@ const char* textureFile = "../../FBX/Baker_house.png";
 double frameRate = 0;
 
 GLuint textureID;
-struct Mesh {
-    vector<GLfloat> vertices;
-    vector<GLuint> indices;
-    //GLuint VAO, VBO, EBO, TBO;
-    vector<GLfloat> uvCoords;
 
-};
+ModuleImporter importer;
+ModuleScene scene;
 
 bool isRightClicking = false;
 bool isAltClicking = false;
@@ -67,76 +67,7 @@ vec3 cameraPosition(0.0f, 0.0f, 5.0f);
 vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
-vector<Mesh> meshes;
 
-
-GLuint loadTexture(const char* path) {
-    int width, height, channels;
-
-    unsigned char* imageData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-
-    if (imageData == nullptr) {
-        std::cerr << "Error: No se pudo cargar la textura " << textureFile << std::endl;
-        return 0;
-    }
-    GLuint textID;
-
-    glGenTextures(1, &textID);
-    glBindTexture(GL_TEXTURE_2D, textID);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    stbi_image_free(imageData);
-    return textID;
-}
-
-
-void loadFBX(const string& filePath) {
-    const aiScene* scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if (!scene) {
-        fprintf(stderr, "Error en cargar el archivo: %s\n", aiGetErrorString());
-        return;
-    }
-
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-        const aiMesh* aimesh = scene->mMeshes[i];
-        std::string mensaje = "Se ha cargado la malla " + std::to_string(i);// Construye el mensaje de carga de malla con el índice `i`
-        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
-        mensaje = "Numero de vertices " + std::to_string(aimesh->mNumVertices);// Construye un mensaje que incluye el número de vértices de la malla `aimesh`
-        SaveMessage(mensaje.c_str());// Convierte `mensaje` a `const char*` y lo guarda en la lista de mensajes
-        printf(" Numero de vertices: %u\n", aimesh->mNumVertices);
-
-        Mesh mesh;
-
-        for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
-            mesh.vertices.push_back(aimesh->mVertices[v].x);
-            mesh.vertices.push_back(aimesh->mVertices[v].y);
-            mesh.vertices.push_back(aimesh->mVertices[v].z);
-
-            if (aimesh->HasTextureCoords(0)) {
-                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].x);
-                mesh.uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
-            }
-            else {
-                mesh.uvCoords.push_back(0.0f);
-                mesh.uvCoords.push_back(0.0f);
-            }
-        }
-        for (unsigned int f = 0; f < aimesh->mNumFaces; f++) {
-            const aiFace& face = aimesh->mFaces[f];
-            for (unsigned int j = 0; j < face.mNumIndices; j++) {
-                mesh.indices.push_back(face.mIndices[j]);
-            }
-        }
-        meshes.push_back(mesh);
-    }
-}
 
 void moveCameraWASD(float deltaTime) {
     const float baseSpeed = 2.5f;
@@ -195,24 +126,19 @@ void render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    for (const auto& mesh : meshes) {
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 0, mesh.uvCoords.data());
-        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+
+    glBindTexture(GL_TEXTURE_2D, importer.getTextureID());
+
+    scene.renderMeshes();
+
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+
     glPopMatrix();
+
     glFlush();
 }
-
-
 
 
 static void init_openGL() {
@@ -309,60 +235,56 @@ static bool processEvents() {
             char* droppedFile = event.drop.file;
             printf("Archivo arrastrado: %s\n", droppedFile);
 
-            // Liberar la textura anterior si ya estaba cargada
             if (textureID != 0) {
                 glDeleteTextures(1, &textureID);
                 textureID = 0;
             }
 
-            // Limpiar las mallas cargadas anteriormente
-            meshes.clear();
+            
+            //scene.clearGameObjects();
 
-            // Cargar el nuevo archivo FBX
-            loadFBX(droppedFile);
-
-            // Volver a cargar la textura
-            textureID = loadTexture(droppedFile); // Supón que el archivo drop contiene la textura también
-            if (textureID == 0) {
-                std::cerr << "Error: No se pudo cargar la nueva textura " << droppedFile << std::endl;
-                SaveMessage("Error: No se pudo cargar la nueva textura ");
+            if (!importer.loadFBX(droppedFile, &scene, textureFile)) {
+                std::cerr << "Error al cargar el archivo FBX: " << droppedFile << std::endl;
+            }
+            else {
+                textureID = importer.getTextureID();
+                if (textureID == 0) {
+                    std::cerr << "Error: No se pudo cargar la nueva textura desde " << textureFile << std::endl;
+                }
+                else {
+                    scene.setTexture(textureID);
+                }
             }
 
-            // Liberar el path de archivo
             SDL_free(droppedFile);
+            break;
         }
-
-
-        }
-
-    }
-    return true;
+		}
+	}
+	return true;
 }
 
 int main(int argc, char** argv) {
-    MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+    try {
+        MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+        importer.setWindow(&window);
+        init_openGL();
 
-    init_openGL();
-    loadFBX(file);
-    textureID = loadTexture(textureFile);
-    if (textureID == 0) {
-        cerr << "Error: La textura no se pudo cargar correctamente." << endl;
-        return -1;
-    }
-
-    int frames = 0;
-    double fps = 0.0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-
-    while (processEvents()) {
-        float deltaTime = chrono::duration<float>(FRAME_DT).count();
-
-        if (isRightClicking) {
-            moveCameraWASD(deltaTime);
+        int frames = 0;
+        double fps = 0.0;
+        auto startTime = std::chrono::high_resolution_clock::now();
+        
+        if (!importer.loadFBX(file, &scene, textureFile)) { 
+            std::cerr << "Error al cargar el archivo FBX: " << file << std::endl;
+            return -1;
         }
 
-        render();
-        window.swapBuffers();
+		//scene.drawScene();
+        while (true) {
+            if (!processEvents()) {
+                break;
+            }
+            float deltaTime = chrono::duration<float>(FRAME_DT).count();
 
         frames++;
 
@@ -376,7 +298,18 @@ int main(int argc, char** argv) {
             // Reiniciar el tiempo de inicio para otro intervalo de un segundo
             startTime = currentTime;
         }
+            if (isRightClicking) {
+                moveCameraWASD(deltaTime);
+            }
+            render();
+            window.swapBuffers();
+        }
     }
-
+    catch (const std::exception& e) {
+        std::cerr << "Excepción: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "Excepción desconocida." << std::endl;
+    }
     return 0;
 }

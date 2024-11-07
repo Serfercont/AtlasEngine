@@ -6,7 +6,7 @@
 
 	extern double frameRate;
 
-	void InitImGuiMenus();//inicializar menus
+	void InitImGuiMenus();
 
 	void RenderImGuiMenus(bool& showAbout);
 
