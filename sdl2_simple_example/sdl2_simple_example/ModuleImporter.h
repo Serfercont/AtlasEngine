@@ -26,7 +26,7 @@ public:
     //void toggleTexture();
 
     std::vector<Mesh> meshes;
-    bool boolChekerTexture = true;
+    bool boolChekerTexture = false;
 
 
 private:
