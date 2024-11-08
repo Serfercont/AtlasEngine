@@ -15,13 +15,18 @@ public:
     bool loadFBX(const std::string& filePath, ModuleScene* scene, const char* textureFile);
     GLuint loadTexture(const char*);
 
+    GLuint createCheckerTexture();
+
     GLuint getTextureID() { return textureID; }
 
     GLuint getTextureID() const;
 
     void setWindow(MyWindow* window);
-    const std::vector<Mesh>& getMeshes() const; 
+    const std::vector<Mesh>& getMeshes() const;
+    //void toggleTexture();
+
     std::vector<Mesh> meshes;
+    bool boolChekerTexture = true;
 
 
 private:
@@ -29,6 +34,8 @@ private:
     std::vector<float> UvCoords;
     std::vector<unsigned int> indices;
     GLuint textureID = 0;
+	GLuint checkerTexture;
+	
    
 
     MyWindow* _window = nullptr;

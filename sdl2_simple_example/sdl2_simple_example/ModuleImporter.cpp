@@ -39,8 +39,20 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         fprintf(stderr, "Error al cargar el archivo: %s\n", importer.GetErrorString());
         return false;
     }
-
-    GLuint textureID = loadTexture(textureFile);
+    if (textureID != 0) {
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+    if (boolChekerTexture) {
+		checkerTexture = createCheckerTexture();
+        textureID = checkerTexture;
+    } else {
+        textureID = loadTexture(textureFile);
+        if (textureID == 0) {
+            std::cerr << "Error al cargar la textura desde el archivo: " << textureFile << std::endl;
+            textureID = checkerTexture;  
+        }
+    }
     Texture* texture = new Texture(textureID);
     
     for (unsigned int i = 0; i < ai_scene->mNumMeshes; i++) {
@@ -109,7 +121,35 @@ GLuint ModuleImporter::loadTexture(const char* path) {
         stbi_image_free(imageData);
         textureID = textID;
         return textureID;
+}
+
+GLuint ModuleImporter::createCheckerTexture() {
+    const int width = 64;
+    const int height = 64;
+    GLubyte checkerImage[height][width][4];
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
+            checkerImage[i][j][0] = (GLubyte)c;
+            checkerImage[i][j][1] = (GLubyte)c;
+            checkerImage[i][j][2] = (GLubyte)c;
+            checkerImage[i][j][3] = (GLubyte)255;
+        }
     }
+
+    GLuint checkerTexture;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glGenTextures(1, &checkerTexture);
+    glBindTexture(GL_TEXTURE_2D, checkerTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // U
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // V
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, checkerImage);
+
+    return checkerTexture;
+}
 
 
 GLuint ModuleImporter::getTextureID() const {

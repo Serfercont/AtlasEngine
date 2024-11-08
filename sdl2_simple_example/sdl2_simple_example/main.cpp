@@ -45,11 +45,13 @@ const char* file = "../../FBX/BakerHouse.fbx";
 const char* textureFile = "../../FBX/Baker_house.png";
 
 double frameRate = 0;
-
-GLuint textureID;
-
 ModuleImporter importer;
 ModuleScene scene;
+
+GLuint textureID;
+GLuint texturaCuadros= importer.createCheckerTexture();
+
+
 
 bool isRightClicking = false;
 bool isAltClicking = false;
@@ -225,6 +227,18 @@ static bool processEvents() {
             else if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
                 shiftPressed = true;
             }
+            else if (event.key.keysym.sym == SDLK_t)
+            {
+                importer.boolChekerTexture = !importer.boolChekerTexture;
+                if (importer.boolChekerTexture==true)
+                {
+					importer.loadFBX(file, &scene, textureFile);
+                }
+                else {
+				    importer.loadFBX(file, &scene, textureFile);    
+                }
+				
+            }
             break;
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
@@ -292,10 +306,10 @@ int main(int argc, char** argv) {
         const auto dt = currentTime - startTime;
         std::chrono::duration<double> elapsed = currentTime - startTime;
         if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
-        if (elapsed.count() >= 1.0) { // 1.0 representa un segundo
+        if (elapsed.count() >= 1.0) { 
             frameRate = frames / elapsed.count();
             frames = 0;
-            // Reiniciar el tiempo de inicio para otro intervalo de un segundo
+            
             startTime = currentTime;
         }
             if (isRightClicking) {
