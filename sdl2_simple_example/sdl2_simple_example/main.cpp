@@ -249,30 +249,33 @@ static bool processEvents() {
             char* droppedFile = event.drop.file;
             printf("Archivo arrastrado: %s\n", droppedFile);
 
-            if (textureID != 0) {
-                glDeleteTextures(1, &textureID);
-                textureID = 0;
-            }
+            std::string filePath = droppedFile;
+            std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
-            
-            scene.clearGameObjects();
-
-            if (!importer.loadFBX(droppedFile, &scene, textureFile)) {
-                std::cerr << "Error al cargar el archivo FBX: " << droppedFile << std::endl;
-            }
-            else {
-                textureID = importer.getTextureID();
-                if (textureID == 0) {
-                    std::cerr << "Error: No se pudo cargar la nueva textura desde " << textureFile << std::endl;
+            if (extension == "png" || extension == "jpg" || extension == "jpeg") {
+                // Cargar como textura
+                GLuint newTextureID = importer.loadTexture(droppedFile);
+                if (newTextureID != 0) {
+                    Texture* newTexture = new Texture(newTextureID);
                 }
                 else {
-                    scene.setTexture(textureID);
+                    std::cerr << "Error al cargar la textura: " << droppedFile << std::endl;
                 }
+            }
+            else if (extension == "fbx" || extension == "obj") {
+                // Cargar como modelo 3D
+                if (!importer.loadFBX(droppedFile, &scene, nullptr)) {
+                    std::cerr << "Error al cargar el modelo: " << droppedFile << std::endl;
+                }
+            }
+            else {
+                std::cerr << "Tipo de archivo no soportado: " << extension << std::endl;
             }
 
             SDL_free(droppedFile);
             break;
         }
+
 		}
 	}
 	return true;
@@ -293,25 +296,25 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-		//scene.drawScene();
+		scene.drawScene();
         while (true) {
             if (!processEvents()) {
                 break;
             }
             float deltaTime = chrono::duration<float>(FRAME_DT).count();
 
-        frames++;
+            frames++;
 
-        const auto currentTime = hrclock::now();
-        const auto dt = currentTime - startTime;
-        std::chrono::duration<double> elapsed = currentTime - startTime;
-        if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
-        if (elapsed.count() >= 1.0) { 
-            frameRate = frames / elapsed.count();
-            frames = 0;
+            const auto currentTime = hrclock::now();
+            const auto dt = currentTime - startTime;
+            std::chrono::duration<double> elapsed = currentTime - startTime;
+           if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+            if (elapsed.count() >= 1.0) { 
+                frameRate = frames / elapsed.count();
+                frames = 0;
             
-            startTime = currentTime;
-        }
+                startTime = currentTime;
+            }
             if (isRightClicking) {
                 moveCameraWASD(deltaTime);
             }

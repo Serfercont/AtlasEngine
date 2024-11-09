@@ -39,18 +39,22 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         fprintf(stderr, "Error al cargar el archivo: %s\n", importer.GetErrorString());
         return false;
     }
-    if (textureID != 0) {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;
-    }
-    if (boolChekerTexture) {
-		checkerTexture = createCheckerTexture();
-        textureID = checkerTexture;
-    } else {
-        textureID = loadTexture(textureFile);
-        if (textureID == 0) {
-            std::cerr << "Error al cargar la textura desde el archivo: " << textureFile << std::endl;
-            textureID = checkerTexture;  
+    if (textureFile != nullptr)
+    {
+        if (textureID != 0) {
+            glDeleteTextures(1, &textureID);
+            textureID = 0;
+        }
+        if (boolChekerTexture) {
+            checkerTexture = createCheckerTexture();
+            textureID = checkerTexture;
+        }
+        else {
+            textureID = loadTexture(textureFile);
+            if (textureID == 0) {
+                std::cerr << "Error al cargar la textura desde el archivo: " << textureFile << std::endl;
+                textureID = checkerTexture;
+            }
         }
     }
     Texture* texture = new Texture(textureID);
