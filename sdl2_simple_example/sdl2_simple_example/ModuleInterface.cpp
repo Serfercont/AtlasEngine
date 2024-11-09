@@ -22,7 +22,9 @@ int LogSize = 0;
 
 
 const char* CubePath = "../../FBX/Primitive/Cube.fbx";
-const char* SpherePath = "../../FBX/Primitive/LaserGun_P1.fbx";
+const char* SpherePath = "../../FBX/Primitive/Sphere.fbx";
+const char* CylinderPath = "../../FBX/Primitive/Cylinder.fbx";
+const char* PlanePath = "../../FBX/Primitive/Plane.fbx";
 void RenderImGuiMenus(bool& showAbout)
 {
     extern ModuleImporter importer;
@@ -158,14 +160,18 @@ void RenderImGuiMenus(bool& showAbout)
                     //Create capsule
                 }
 
-                if (ImGui::MenuItem("Cylinder", "", false, false))
+                if (ImGui::MenuItem("Cylinder", "", false, true))
                 {
-                    //Create cylinder
+                    if (!importer.loadFBX(CylinderPath, &scene, nullptr)) {
+                        std::cerr << "Error al cargar el archivo FBX: " << std::endl;
+                    }
                 }
 
-                if (ImGui::MenuItem("Plane", "", false, false))
+                if (ImGui::MenuItem("Plane", "", false, true))
                 {
-                    //Create plane
+                    if (!importer.loadFBX(PlanePath, &scene, nullptr)) {
+                        std::cerr << "Error al cargar el archivo FBX: " << std::endl;
+                    }
                 }
 
                 ImGui::EndMenu();
