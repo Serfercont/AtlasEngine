@@ -235,30 +235,28 @@ static bool processEvents() {
             char* droppedFile = event.drop.file;
             printf("Archivo arrastrado: %s\n", droppedFile);
 
-            if (textureID != 0) {
-                glDeleteTextures(1, &textureID);
-                textureID = 0;
-            }
-
-            
-            scene.clearGameObjects();
-
             if (!importer.loadFBX(droppedFile, &scene, textureFile)) {
                 std::cerr << "Error al cargar el archivo FBX: " << droppedFile << std::endl;
             }
             else {
-                textureID = importer.getTextureID();
-                if (textureID == 0) {
-                    std::cerr << "Error: No se pudo cargar la nueva textura desde " << textureFile << std::endl;
+                GLuint newTextureID = importer.getTextureID();
+
+                if (newTextureID == 0) {
+                    std::cerr << "Error: No se pudo cargar la textura desde " << textureFile << std::endl;
                 }
                 else {
-                    scene.setTexture(textureID);
+                    // Aplica la textura solo a los nuevos objetos cargados
+                    for (size_t i = scene.gameObjects.size() - importer.getLoadedMeshes().size(); i < scene.gameObjects.size(); ++i) {
+                        scene.setTexture(scene.gameObjects[i], newTextureID);
+                    }
                 }
             }
 
             SDL_free(droppedFile);
             break;
         }
+
+
 		}
 	}
 	return true;

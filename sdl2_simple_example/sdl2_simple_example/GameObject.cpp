@@ -8,7 +8,7 @@ GameObject::GameObject(Mesh* mesh, Texture* texture)
 
 
 void GameObject::setTexture(Texture* newTexture) {
-    if (texture) delete texture;
+    if (texture) delete texture;  // Limpia textura existente
     texture = newTexture;
 }
 

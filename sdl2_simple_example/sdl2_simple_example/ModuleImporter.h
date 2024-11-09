@@ -13,23 +13,18 @@ public:
     ModuleImporter();
 
     bool loadFBX(const std::string& filePath, ModuleScene* scene, const char* textureFile);
-    GLuint loadTexture(const char*);
-
-    GLuint getTextureID() { return textureID; }
+    GLuint loadTexture(const char* path);
 
     GLuint getTextureID() const;
-
     void setWindow(MyWindow* window);
-    const std::vector<Mesh>& getMeshes() const; 
-    std::vector<Mesh> meshes;
 
+    const std::vector<Mesh>& getLoadedMeshes() const;
+    const std::vector<Mesh>& getMeshes() const;
 
 private:
-    std::vector<float> vertices;
-    std::vector<float> UvCoords;
-    std::vector<unsigned int> indices;
+    std::vector<Mesh> meshes;
+    std::vector<Mesh> loadedMeshes;
     GLuint textureID = 0;
-   
-
     MyWindow* _window = nullptr;
 };
+

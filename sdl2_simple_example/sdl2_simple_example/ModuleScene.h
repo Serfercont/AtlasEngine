@@ -7,7 +7,8 @@ class ModuleScene {
 public:
     ModuleScene();
     void loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform = Transform());
-    void setTexture(GLuint textureID);
+    void setTexture(GLuint textureID);  // Original: asigna una textura global a todos los objetos
+    void setTexture(GameObject* gameObject, GLuint textureID);  // Nueva: asigna una textura específica a un objeto
     void setCheckerTexture(GLuint checkerTextureID);
     void drawScene();
     void setMeshes(const std::vector<Mesh>& meshes);
