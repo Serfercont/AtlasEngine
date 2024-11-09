@@ -253,17 +253,25 @@ static bool processEvents() {
             std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
             if (extension == "png" || extension == "jpg" || extension == "jpeg") {
-                // Cargar como textura
+                // Cargar la textura
                 GLuint newTextureID = importer.loadTexture(droppedFile);
                 if (newTextureID != 0) {
-                    Texture* newTexture = new Texture(newTextureID);
+                    std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
+                    GameObject* lastGameObject = scene.getLastCreatedGameObject();
+                    if (lastGameObject != nullptr) {
+                        Texture* newTexture = new Texture(newTextureID);
+                        lastGameObject->setTexture(newTexture);
+                        std::cout << "Textura aplicada al último GameObject creado.\n";
+                    }
+                    else {
+                        std::cerr << "No hay GameObjects creados.\n";
+                    }
                 }
                 else {
                     std::cerr << "Error al cargar la textura: " << droppedFile << std::endl;
                 }
             }
             else if (extension == "fbx" || extension == "obj") {
-                // Cargar como modelo 3D
                 if (!importer.loadFBX(droppedFile, &scene, nullptr)) {
                     std::cerr << "Error al cargar el modelo: " << droppedFile << std::endl;
                 }

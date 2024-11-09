@@ -5,6 +5,13 @@
 
 class ModuleScene {
 public:
+    GameObject* getLastCreatedGameObject() const {
+        if (!gameObjects.empty()) {
+            return gameObjects.back();  // Retorna el último GameObject agregado.
+        }
+        return nullptr;  // Retorna nullptr si no hay GameObjects.
+    }
+
     ModuleScene();
     void loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform = Transform());
     void setTexture(GLuint textureID);
