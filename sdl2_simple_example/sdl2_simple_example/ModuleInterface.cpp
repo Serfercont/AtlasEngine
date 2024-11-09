@@ -14,6 +14,8 @@ bool showHierarchy = false;
 std::vector<std::string> logMessages;
 int LogSize = 0;
 
+extern void loadFBX(const std::string& filePath);
+
 void RenderImGuiMenus(bool& showAbout)
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -127,14 +129,16 @@ void RenderImGuiMenus(bool& showAbout)
 
             if (ImGui::BeginMenu("3D object"))
             {
-                if (ImGui::MenuItem("Cube", "", false, false))
+                if (ImGui::MenuItem("Cube", "", false, true))
                 {
                     //Create cube
+                    loadFBX("../../FBX/Primitive/Cube.fbx");  // Cargar modelo de cubo
                 }
 
-                if (ImGui::MenuItem("Sphere", "", false, false))
+                if (ImGui::MenuItem("Sphere", "", false, true))
                 {
                     //Create sphere
+                    loadFBX("../../FBX/Primitive/Sphere.fbx");  // Cargar modelo de cubo
                 }
 
                 if (ImGui::MenuItem("Capsule", "", false, false))
@@ -142,14 +146,16 @@ void RenderImGuiMenus(bool& showAbout)
                     //Create capsule
                 }
 
-                if (ImGui::MenuItem("Cylinder", "", false, false))
+                if (ImGui::MenuItem("Cylinder", "", false, true))
                 {
                     //Create cylinder
+                    loadFBX("../../FBX/Primitive/Cylinder.fbx");  // Cargar modelo de cubo
                 }
 
-                if (ImGui::MenuItem("Plane", "", false, false))
+                if (ImGui::MenuItem("Plane", "", false, true))
                 {
                     //Create plane
+                    loadFBX("../../FBX/Primitive/Plane.fbx");  // Cargar modelo de cubo
                 }
 
                 ImGui::EndMenu();
@@ -381,4 +387,6 @@ void Docking()
     ImGui::End();
 }
 
-
+void loadFBX(const std::string& filePath)
+{
+}
