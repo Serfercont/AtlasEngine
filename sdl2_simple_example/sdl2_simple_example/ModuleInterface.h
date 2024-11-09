@@ -2,12 +2,9 @@
 #include <string>
 #include <vector>
 
-class ModuleInterface {
+	extern std::vector<std::string> logMessages;
 
-public:
-	std::vector<std::string> logMessages;
-
-	double frameRate;
+	extern double frameRate;
 
 	void InitImGuiMenus();
 
@@ -18,10 +15,5 @@ public:
 	void SaveMessage(const char* message);
 
 	void Docking();
-
-
-
-
-};
 
 

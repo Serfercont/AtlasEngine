@@ -6,10 +6,6 @@
 #include "imgui_impl_opengl3.h"
 #include <string>
 #include <vector>
-#include "glew.h"
-#include "ModuleImporter.h"
-#include "ModuleScene.h"
-
 
 bool showConsole = true;
 bool showConfiguration = false;
@@ -17,8 +13,9 @@ bool showHierarchy = false;
 
 std::vector<std::string> logMessages;
 int LogSize = 0;
-ModuleImporter importer;
-ModuleScene scene;
+
+extern void loadFBX(const std::string& filePath);
+
 void RenderImGuiMenus(bool& showAbout)
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -135,7 +132,7 @@ void RenderImGuiMenus(bool& showAbout)
                 if (ImGui::MenuItem("Cube", "", false, true))
                 {
                     //Create cube
-                    importer.loadFBX("../../FBX/Primitive/Cube.fbx",&scene,nullptr);  // Cargar modelo de cubo
+                    loadFBX("../../FBX/Primitive/Cube.fbx");  // Cargar modelo de cubo
                 }
 
                 if (ImGui::MenuItem("Sphere", "", false, true))
