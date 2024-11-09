@@ -1,11 +1,17 @@
 #include "ModuleInterface.h"
-#include <SDL2/SDL_opengl.h>
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
+#include "ModuleImporter.h"
 #include <string>
 #include <vector>
+#include <iostream>
+//#include "main.cpp"
+
+
 
 bool showConsole = true;
 bool showConfiguration = false;
@@ -14,8 +20,13 @@ bool showHierarchy = false;
 std::vector<std::string> logMessages;
 int LogSize = 0;
 
+
+const char* CubePath = "../../FBX/Primitive/Cube.fbx";
+const char* SpherePath = "../../FBX/Primitive/LaserGun_P1.fbx";
 void RenderImGuiMenus(bool& showAbout)
 {
+    extern ModuleImporter importer;
+    extern ModuleScene scene;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -127,14 +138,19 @@ void RenderImGuiMenus(bool& showAbout)
 
             if (ImGui::BeginMenu("3D object"))
             {
-                if (ImGui::MenuItem("Cube", "", false, false))
+                if (ImGui::MenuItem("Cube", "", false, true))
                 {
-                    //Create cube
+                    if (!importer.loadFBX(CubePath, &scene, nullptr)) {
+                        std::cerr << "Error al cargar el archivo FBX: " << std::endl;
+                    }
+                    
                 }
 
-                if (ImGui::MenuItem("Sphere", "", false, false))
+                if (ImGui::MenuItem("Sphere", "", false, true))
                 {
-                    //Create sphere
+                    if (!importer.loadFBX(SpherePath, &scene, nullptr)) {
+                        std::cerr << "Error al cargar el archivo FBX: " << std::endl;
+                    }
                 }
 
                 if (ImGui::MenuItem("Capsule", "", false, false))
