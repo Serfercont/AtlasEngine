@@ -16,11 +16,43 @@
 bool showConsole = true;
 bool showConfiguration = false;
 bool showHierarchy = false;
-
+bool showInspector = false;
 std::vector<std::string> logMessages;
 int LogSize = 0;
 
+// Paleta de colores
+ImVec4 color1 = ImVec4(2 / 255.0f, 49 / 255.0f, 94 / 255.0f, 1.0f);   // #005067 (Fondo Principal)
+ImVec4 color2 = ImVec4(128 / 255.0f, 100 / 255.0f, 145 / 255.0f, 1.0f); // #048399 (Elementos interactivos)
+ImVec4 color3 = ImVec4(254 / 255.0f, 185 / 255.0f, 198 / 255.0f, 1.0f); // #FEB9C6 (Hover suave)
+ImVec4 color4 = ImVec4(185 / 255.0f, 107 / 255.0f, 133 / 255.0f, 1.0f); // #B96B85 (Elementos activos)
+ImVec4 color5 = ImVec4(2 / 255.0f, 30 / 255.0f, 32 / 255.0f, 1.0f);    // #021E20 (Texto/Bordes)
 
+
+void ApplyCustomStyle()
+{
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
+
+    colors[ImGuiCol_Text] = color3;              // Texto principal en verde oscuro
+    colors[ImGuiCol_TextDisabled] = color3;      // Texto deshabilitado (rosa suave)
+    colors[ImGuiCol_WindowBg] = color1;          // Fondo principal azul oscuro
+    colors[ImGuiCol_ChildBg] = color1;           // Fondo secundario
+    colors[ImGuiCol_Border] = color2;            // Bordes en verde oscuro
+    colors[ImGuiCol_FrameBg] = color3;           // Fondo de cuadro rosa pastel
+    colors[ImGuiCol_FrameBgHovered] = color2;    // Hover en cuadro azul brillante
+    colors[ImGuiCol_FrameBgActive] = color4;     // Cuadro activo rosa oscuro
+    colors[ImGuiCol_TitleBg] = color1;           // Fondo título principal
+    colors[ImGuiCol_TitleBgActive] = color2;     // Título activo azul medio
+    colors[ImGuiCol_MenuBarBg] = color1;         // Fondo barra menú
+    colors[ImGuiCol_Button] = color2;            // Botón base azul medio
+    colors[ImGuiCol_ButtonHovered] = color5;     // Botón hover rosa pastel
+    colors[ImGuiCol_ButtonActive] = color4;      // Botón activo rosa oscuro
+    colors[ImGuiCol_Header] = color2;            // Encabezado azul brillante
+    colors[ImGuiCol_HeaderHovered] = color4;     // Hover encabezado
+    colors[ImGuiCol_HeaderActive] = color4;      // Encabezado activo
+    colors[ImGuiCol_ScrollbarGrab] = color2;     // Scroll bar azul medio
+    colors[ImGuiCol_SliderGrab] = color3;        // Slider activo rosa oscuro
+}
 const char* CubePath = "../../FBX/Primitive/Cube.fbx";
 const char* SpherePath = "../../FBX/Primitive/Sphere.fbx";
 const char* CylinderPath = "../../FBX/Primitive/Cylinder.fbx";
@@ -29,6 +61,7 @@ void RenderImGuiMenus(bool& showAbout)
 {
     extern ModuleImporter importer;
     extern ModuleScene scene;
+    ApplyCustomStyle();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -289,6 +322,10 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 showHierarchy = true;
             }
+            if (ImGui::MenuItem("Inspector"))
+            {
+                showInspector = true;
+            }
             ImGui::EndMenu();
         }
 
@@ -298,8 +335,8 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 showAbout = true;
             }
-            if (ImGui::MenuItem("/Github/XD")) {
-
+            if (ImGui::MenuItem("Github :)")) {
+                SDL_OpenURL("https://github.com/Serfercont/AtlasEngine");
             }
             ImGui::EndMenu();
         }
@@ -358,9 +395,14 @@ void RenderImGuiMenus(bool& showAbout)
         ImGui::Begin("Hierarchy", &showHierarchy);
         ImGui::End();
     }
-
+    if (showInspector)
+    {
+        ImGui::Begin("Inspector", &showInspector);
+        ImGui::End();
+    }
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    
 }
 
 void LogInConsole(int ListSize)
