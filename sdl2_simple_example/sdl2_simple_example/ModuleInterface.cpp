@@ -290,6 +290,9 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
             {
                 showHierarchy = true;
             }
+            if (ImGui::MenuItem("Inspector")) {  
+                showInspector = true;  
+            }
             ImGui::EndMenu();
         }
 
@@ -338,6 +341,10 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
     {
 		drawHierarchy();
     }
+    if (showInspector) {
+        drawInspector(); 
+    }
+
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -382,14 +389,16 @@ void ModuleInterface::drawHierarchy() {
 
     std::vector<GameObject*> gameObjects = scene->getGameObjects();
 
-    
     std::function<void(const GameObject*)> drawGameObjectHierarchy = [&](const GameObject* obj) {
         if (ImGui::TreeNode(obj->getName().c_str())) {
             const std::vector<GameObject*>& children = obj->getChildren();
             for (const GameObject* child : children) {
-                drawGameObjectHierarchy(child); 
+                drawGameObjectHierarchy(child);
             }
             ImGui::TreePop();
+        }
+        if (ImGui::IsItemClicked()) {
+            scene->selectGameObject(const_cast<GameObject*>(obj));  
         }
         };
 
@@ -401,6 +410,27 @@ void ModuleInterface::drawHierarchy() {
 
     ImGui::End();
 }
+
+
+void ModuleInterface::drawInspector() {
+    ImGui::Begin("Inspector", &showInspector);  
+
+    if (scene->selectedGameObject != nullptr) {
+        GameObject* selectedGO = scene->selectedGameObject;  
+
+        ImGui::Text("Position");
+        ImGui::InputFloat3("###Position", &selectedGO->getPosition()[0]);  
+
+        ImGui::Text("Rotation");
+        ImGui::InputFloat3("###Rotation", &selectedGO->getRotation()[0]);  
+
+        ImGui::Text("Scale");
+        ImGui::InputFloat3("###Scale", &selectedGO->getScale()[0]);  
+    }
+
+    ImGui::End();
+}
+
 
 
 void ModuleInterface::SaveMessage(const char* message)

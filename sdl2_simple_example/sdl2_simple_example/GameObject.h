@@ -18,6 +18,9 @@ public:
     Texture* getTexture() const;
 
     void setTransform(const Transform& newTransform);
+    glm::vec3 getPosition() const;
+    glm::vec3 getRotation() const;
+    glm::vec3 getScale() const;
     const Transform& getTransform() const { return transform; }
 
     void draw() const;
@@ -29,6 +32,7 @@ public:
     const std::vector<GameObject*>& getChildren() const;
 
     void addChild(GameObject* child);
+
 
 private:
     std::string name;

@@ -20,6 +20,9 @@ public:
     std::vector<GameObject*> getGameObjects();
     int gameObjectCount = 0;
     int selectedGameObjectIndex = -1;
+
+    GameObject* selectedGameObject = nullptr; 
+    void selectGameObject(GameObject* go); 
 private:
     std::vector<GameObject*> gameObjects;
     std::vector<Mesh> meshes;

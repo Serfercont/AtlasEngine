@@ -25,6 +25,17 @@ Texture* GameObject::getTexture() const {
 void GameObject::setTransform(const Transform& newTransform) {
     transform = newTransform;
 }
+glm::vec3 GameObject::getPosition() const {
+    return transform.position;  
+}
+
+glm::vec3 GameObject::getRotation() const {
+    return transform.rotation;  
+}
+
+glm::vec3 GameObject::getScale() const {
+    return transform.scale;  
+}
 
 void GameObject::draw() const {
     glPushMatrix();

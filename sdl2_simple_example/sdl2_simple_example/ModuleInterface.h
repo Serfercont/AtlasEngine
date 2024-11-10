@@ -19,12 +19,15 @@ private:
     void drawConsole();
     void drawConfig();
     void drawHierarchy();
+    void drawInspector();
     void LogInConsole(int ListSize);
     void Docking();
 
     bool showConsole = true;
     bool showConfiguration = false;
     bool showHierarchy = false;
+    bool showInspector = false;  
+
 
     std::vector<std::string> logMessages;
     ModuleScene* scene; 

@@ -109,7 +109,9 @@ std::vector<std::string> ModuleScene::getGameObjectNames() const {
     }
     return names;
 }
-
+void ModuleScene::selectGameObject(GameObject* go) {
+    selectedGameObject = go;
+}
 
 std::vector<GameObject*> ModuleScene::getGameObjects() {
     return gameObjects;
