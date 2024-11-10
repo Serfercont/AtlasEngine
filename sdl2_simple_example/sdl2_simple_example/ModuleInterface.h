@@ -25,8 +25,8 @@ private:
 
     bool showConsole = true;
     bool showConfiguration = false;
-    bool showHierarchy = false;
-    bool showInspector = false;  
+    bool showHierarchy = true;
+    bool showInspector = true;  
     bool useCheckerTexture = false;
 
     std::vector<std::string> logMessages;

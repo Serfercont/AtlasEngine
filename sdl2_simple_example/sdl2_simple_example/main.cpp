@@ -73,7 +73,7 @@ vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
 
 void moveCameraWASD(float deltaTime) {
-    const float baseSpeed = 2.5f;
+    const float baseSpeed = 5.0f;
     float speed = shiftPressed ? baseSpeed * 2.0f : baseSpeed;
 
     const Uint8* state = SDL_GetKeyboardState(NULL);
