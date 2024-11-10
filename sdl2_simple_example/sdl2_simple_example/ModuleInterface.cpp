@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <functional>
 //#include "main.cpp"
 
 
@@ -376,22 +377,30 @@ void ModuleInterface::LogInConsole(int ListSize)
         ImGui::Text("%s", logMessages[i].c_str());
     }
 }
-
 void ModuleInterface::drawHierarchy() {
     ImGui::Begin("Hierarchy", &showHierarchy);
 
-    // Obtener los GameObjects de la escena
     std::vector<GameObject*> gameObjects = scene->getGameObjects();
+
     
-    // Recorrer y mostrar cada GameObject
+    std::function<void(const GameObject*)> drawGameObjectHierarchy = [&](const GameObject* obj) {
+        if (ImGui::TreeNode(obj->getName().c_str())) {
+            const std::vector<GameObject*>& children = obj->getChildren();
+            for (const GameObject* child : children) {
+                drawGameObjectHierarchy(child); 
+            }
+            ImGui::TreePop();
+        }
+        };
+
     for (const GameObject* obj : gameObjects) {
-        ImGui::Text("%s", obj->getName().c_str());
+        if (obj->getParent() == nullptr) {
+            drawGameObjectHierarchy(obj);
+        }
     }
 
     ImGui::End();
 }
-
-
 
 
 void ModuleInterface::SaveMessage(const char* message)

@@ -231,14 +231,14 @@ static bool processEvents() {
             else if (event.key.keysym.sym == SDLK_t)
             {
                 importer.boolChekerTexture = !importer.boolChekerTexture;
-                if (importer.boolChekerTexture==true)
+                if (importer.boolChekerTexture == true)
                 {
-					importer.loadFBX(file, &scene, textureFile);
+                    importer.loadFBX(file, &scene, textureFile);
                 }
                 else {
-				    importer.loadFBX(file, &scene, textureFile);    
+                    importer.loadFBX(file, &scene, textureFile);
                 }
-				
+
             }
             break;
         case SDL_KEYUP:
@@ -253,7 +253,7 @@ static bool processEvents() {
             std::string filePath = droppedFile;
             std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
-            if (extension == "png" || extension == "jpg" || extension == "jpeg") {
+            if (extension == "PNG" || extension == "JPG" || extension == "jpeg") {
                 // Cargar como textura
                 GLuint newTextureID = importer.loadTexture(droppedFile);
                 if (newTextureID != 0) {

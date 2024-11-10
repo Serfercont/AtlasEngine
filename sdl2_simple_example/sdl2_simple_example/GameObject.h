@@ -1,32 +1,42 @@
-#pragma once
+#ifndef GAMEOBJECT_H
+#define GAMEOBJECT_H
+
 #include <string>
 #include <vector>
-#include "Mesh.h"
 #include "Texture.h"
+#include "Mesh.h"
 #include "Transform.h"
 
 class GameObject {
 public:
-    GameObject(Mesh* mesh, Texture* texture, const std::string& name = "");  
-    void draw() const;
-    void setTexture(Texture* texture);
+    GameObject(Texture* texture = nullptr, const std::string& name = "");
+
+    void addMesh(Mesh* mesh);
+    const std::vector<Mesh*>& getMeshes() const;
+
+    void setTexture(Texture* newTexture);
     Texture* getTexture() const;
-    Mesh* getMesh() const;
+
     void setTransform(const Transform& newTransform);
+    const Transform& getTransform() const { return transform; }
+
+    void draw() const;
 
     const std::string& getName() const;
-    void setName(const std::string& newName); 
+    void setName(const std::string& newName);
 
     GameObject* getParent() const;
     const std::vector<GameObject*>& getChildren() const;
-    void addChild(GameObject* child);
 
-    Mesh* mesh;
-    Texture* texture;
-    Transform transform;
+    void addChild(GameObject* child);
 
 private:
     std::string name;
+    Texture* texture;
+    Transform transform;
     GameObject* parent;
     std::vector<GameObject*> children;
+    std::vector<Mesh*> meshes;
 };
+
+#endif // GAMEOBJECT_H

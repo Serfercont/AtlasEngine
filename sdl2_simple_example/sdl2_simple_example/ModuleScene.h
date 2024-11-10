@@ -18,7 +18,7 @@ public:
     std::vector<std::string> getGameObjectNames() const;
 
     std::vector<GameObject*> getGameObjects();
-
+    int gameObjectCount = 0;
     int selectedGameObjectIndex = -1;
 private:
     std::vector<GameObject*> gameObjects;

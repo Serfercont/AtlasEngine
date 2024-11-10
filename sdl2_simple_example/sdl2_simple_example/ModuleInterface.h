@@ -27,6 +27,5 @@ private:
     bool showHierarchy = false;
 
     std::vector<std::string> logMessages;
-    ModuleScene* scene; // Puntero a la escena, pasado en el constructor
-    //double frameRate;
+    ModuleScene* scene; 
 };

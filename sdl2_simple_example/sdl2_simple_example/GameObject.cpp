@@ -2,29 +2,29 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+GameObject::GameObject(Texture* texture, const std::string& name)
+    : texture(texture), transform(), name(name), parent(nullptr) {}
 
-GameObject::GameObject(Mesh* mesh, Texture* texture, const std::string& name)
-    : mesh(mesh), texture(texture), transform(), name(name), parent(nullptr) {} 
+void GameObject::addMesh(Mesh* mesh) {
+    meshes.push_back(mesh);
+}
 
+const std::vector<Mesh*>& GameObject::getMeshes() const {
+    return meshes;
+}
 
 void GameObject::setTexture(Texture* newTexture) {
     if (texture) delete texture;
     texture = newTexture;
 }
 
-
-void GameObject::setTransform(const Transform& newTransform) {
-    transform = newTransform; 
-}
-
 Texture* GameObject::getTexture() const {
     return texture;
 }
 
-Mesh* GameObject::getMesh() const {
-    return mesh;
+void GameObject::setTransform(const Transform& newTransform) {
+    transform = newTransform;
 }
-
 
 void GameObject::draw() const {
     glPushMatrix();
@@ -36,29 +36,42 @@ void GameObject::draw() const {
     glScalef(transform.scale.x, transform.scale.y, transform.scale.z);
 
     if (texture) {
-        texture->bind(); 
+        texture->bind();
     }
-    if (mesh) {
-        mesh->render();
+
+    for (Mesh* mesh : meshes) {
+        if (mesh) {
+            mesh->render();
+        }
     }
+
     if (texture) {
-        texture->unbind(); 
+        texture->unbind();
     }
 
-    glPopMatrix(); 
+    glPopMatrix();
+
+    for (GameObject* child : children) {
+        if (child) {
+            child->draw();
+        }
+    }
 }
 
-const std::string& GameObject::getName() const { 
-    return name; 
+const std::string& GameObject::getName() const {
+    return name;
 }
-void GameObject::setName(const std::string& newName) {  
+
+void GameObject::setName(const std::string& newName) {
     name = newName;
 }
-GameObject* GameObject::getParent() const { 
-    return parent; 
+
+GameObject* GameObject::getParent() const {
+    return parent;
 }
-const std::vector<GameObject*>& GameObject::getChildren() const { 
-    return children; 
+
+const std::vector<GameObject*>& GameObject::getChildren() const {
+    return children;
 }
 
 void GameObject::addChild(GameObject* child) {
