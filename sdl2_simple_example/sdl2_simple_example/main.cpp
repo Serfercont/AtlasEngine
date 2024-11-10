@@ -267,7 +267,7 @@ static bool processEvents() {
                     std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
                     GameObject* lastGameObject = scene.getLastCreatedGameObject();
                     if (lastGameObject != nullptr) {
-                        Texture* newTexture = new Texture(newTextureID);
+                        Texture* newTexture = new Texture(newTextureID, "DEFAULT");
                         lastGameObject->setTexture(newTexture);
                         std::cout << "Textura aplicada al último GameObject creado.\n";
                     }
@@ -302,6 +302,8 @@ int main(int argc, char** argv) {
         MyWindow window("SDL2 Engine Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
         importer.setWindow(&window);
         init_openGL();
+		int frames = 0;
+		auto startTime = hrclock::now();
 
         if (!importer.loadFBX(file, &scene, textureFile)) {
             std::cerr << "Error loading FBX file: " << file << std::endl;

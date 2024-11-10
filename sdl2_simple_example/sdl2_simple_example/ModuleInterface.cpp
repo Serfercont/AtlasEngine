@@ -181,7 +181,7 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
             {
                 if (ImGui::MenuItem("Cube", "", false, true))
                 {
-                    if (!importer.loadFBX(CubePath, scene, nullptr)) {
+                    if (!importer.loadFBX(CubePath, &scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                     
@@ -189,7 +189,7 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
 
                 if (ImGui::MenuItem("Sphere", "", false, true))
                 {
-                    if (!importer.loadFBX(SpherePath, scene, nullptr)) {
+                    if (!importer.loadFBX(SpherePath, &scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                 }
