@@ -23,7 +23,6 @@
 #include <IL/il.h>
 #include <locale>
 #include <codecvt>
-#include "Logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -268,7 +267,7 @@ static bool processEvents() {
                     std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
                     GameObject* lastGameObject = scene.getLastCreatedGameObject();
                     if (lastGameObject != nullptr) {
-                        Texture* newTexture = new Texture(newTextureID, "DEFAULT");
+                        Texture* newTexture = new Texture(newTextureID,"default");
                         lastGameObject->setTexture(newTexture);
                         std::cout << "Textura aplicada al último GameObject creado.\n";
                     }
@@ -303,6 +302,7 @@ int main(int argc, char** argv) {
         MyWindow window("SDL2 Engine Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
         importer.setWindow(&window);
         init_openGL();
+
 		int frames = 0;
 		auto startTime = hrclock::now();
 
