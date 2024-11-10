@@ -3,8 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-GameObject::GameObject(Mesh* mesh, Texture* texture)
-    : mesh(mesh), texture(texture), transform() {} 
+GameObject::GameObject(Mesh* mesh, Texture* texture, const std::string& name)
+    : mesh(mesh), texture(texture), transform(), name(name), parent(nullptr) {} 
 
 
 void GameObject::setTexture(Texture* newTexture) {
@@ -46,4 +46,24 @@ void GameObject::draw() const {
     }
 
     glPopMatrix(); 
+}
+
+const std::string& GameObject::getName() const { 
+    return name; 
+}
+void GameObject::setName(const std::string& newName) {  
+    name = newName;
+}
+GameObject* GameObject::getParent() const { 
+    return parent; 
+}
+const std::vector<GameObject*>& GameObject::getChildren() const { 
+    return children; 
+}
+
+void GameObject::addChild(GameObject* child) {
+    if (child) {
+        child->parent = this;
+        children.push_back(child);
+    }
 }

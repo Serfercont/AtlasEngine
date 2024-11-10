@@ -20,13 +20,19 @@ bool showHierarchy = false;
 std::vector<std::string> logMessages;
 int LogSize = 0;
 
+extern ModuleImporter importer;
+extern ModuleScene scene;
+extern double frameRate;
 
 const char* CubePath = "../../FBX/Primitive/Cube.fbx";
 const char* SpherePath = "../../FBX/Primitive/LaserGun_P1.fbx";
-void RenderImGuiMenus(bool& showAbout)
+
+ModuleInterface::ModuleInterface()
 {
-    extern ModuleImporter importer;
-    extern ModuleScene scene;
+}
+void ModuleInterface::drawMainMenuBar(bool& showAbout)
+{
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -140,7 +146,7 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 if (ImGui::MenuItem("Cube", "", false, true))
                 {
-                    if (!importer.loadFBX(CubePath, &scene, nullptr)) {
+                    if (!importer.loadFBX(CubePath, scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                     
@@ -148,7 +154,7 @@ void RenderImGuiMenus(bool& showAbout)
 
                 if (ImGui::MenuItem("Sphere", "", false, true))
                 {
-                    if (!importer.loadFBX(SpherePath, &scene, nullptr)) {
+                    if (!importer.loadFBX(SpherePath, scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                 }
@@ -318,46 +324,52 @@ void RenderImGuiMenus(bool& showAbout)
 
     if (showConsole)
     {
-        ImGui::Begin("Console", &showConsole);
-        if (ImGui::SmallButton("Clear"))
-        {
-            logMessages.clear();
-            LogSize = 0;
-        }
-        ImGui::Separator();
-        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-           LogInConsole(LogSize); 
-        }
-        ImGui::EndChild();
-        ImGui::End();
+        drawConsole();
     }
 
     if (showConfiguration)
     {
-        ImGui::Begin("Configuration", &showConfiguration);
-        static float frameRateValues[90] = {};
-        static int offset = 0;
-        frameRateValues[offset] = frameRate;
-        offset = (offset+1)% IM_ARRAYSIZE(frameRateValues);
-        char overlay[32];
-        sprintf_s(overlay, "avg FPS: %.1f", frameRate);
-        ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
-        ImGui::End();
+		drawConfig();
+        
     }
 
     if (showHierarchy)
     {
-        ImGui::Begin("Hierarchy", &showHierarchy);
-        ImGui::End();
+		drawHierarchy();
     }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+void ModuleInterface::drawConfig() {
+    ImGui::Begin("Configuration", &showConfiguration);
+    static float frameRateValues[90] = {};
+    static int offset = 0;
+    frameRateValues[offset] = frameRate;
+    offset = (offset + 1) % IM_ARRAYSIZE(frameRateValues);
+    char overlay[32];
+    sprintf_s(overlay, "avg FPS: %.1f", frameRate);
+    ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
+    ImGui::End();
+}
+void ModuleInterface::drawConsole() {
+    ImGui::Begin("Console", &showConsole);
+    if (ImGui::SmallButton("Clear"))
+    {
+        logMessages.clear();
+        LogSize = 0;
+    }
+    ImGui::Separator();
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
+    {
+        LogInConsole(LogSize);
+    }
+    ImGui::EndChild();
+    ImGui::End();
+}
 
-void LogInConsole(int ListSize)
+void ModuleInterface::LogInConsole(int ListSize)
 {
     for (size_t i = 0; i < ListSize; i++)
     {
@@ -365,14 +377,31 @@ void LogInConsole(int ListSize)
     }
 }
 
-void SaveMessage(const char* message)
+void ModuleInterface::drawHierarchy() {
+    ImGui::Begin("Hierarchy", &showHierarchy);
+
+    // Obtener los GameObjects de la escena
+    std::vector<GameObject*> gameObjects = scene->getGameObjects();
+    
+    // Recorrer y mostrar cada GameObject
+    for (const GameObject* obj : gameObjects) {
+        ImGui::Text("%s", obj->getName().c_str());
+    }
+
+    ImGui::End();
+}
+
+
+
+
+void ModuleInterface::SaveMessage(const char* message)
 {
     logMessages.push_back(message);
     LogSize++;
 }
 
 
-void Docking()
+void ModuleInterface::Docking()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 

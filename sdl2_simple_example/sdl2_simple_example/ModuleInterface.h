@@ -1,19 +1,32 @@
 #pragma once
+
 #include <string>
 #include <vector>
+#include <imgui.h>
+#include "ModuleScene.h"
 
-	extern std::vector<std::string> logMessages;
+class ModuleInterface {
+public:
+    ModuleInterface();
+    void SaveMessage(const char* message);
+    void drawMainMenuBar(bool& showAbout);
+    void setScene(ModuleScene* scene) {
+        this->scene = scene;
+    }
 
-	extern double frameRate;
+private:
+   
+    void drawConsole();
+    void drawConfig();
+    void drawHierarchy();
+    void LogInConsole(int ListSize);
+    void Docking();
 
-	void InitImGuiMenus();
+    bool showConsole = true;
+    bool showConfiguration = false;
+    bool showHierarchy = false;
 
-	void RenderImGuiMenus(bool& showAbout);
-
-	void LogInConsole(int Listsize);
-
-	void SaveMessage(const char* message);
-
-	void Docking();
-
-
+    std::vector<std::string> logMessages;
+    ModuleScene* scene; // Puntero a la escena, pasado en el constructor
+    //double frameRate;
+};

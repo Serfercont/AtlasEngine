@@ -1,4 +1,5 @@
 #include "ModuleImporter.h"
+#include <GL/glew.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -61,6 +62,7 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
     
     for (unsigned int i = 0; i < ai_scene->mNumMeshes; i++) {
         const aiMesh* aimesh = ai_scene->mMeshes[i];
+        std::string meshName = "GameObject " + std::to_string(i); 
         printf("\nMalla %u:\n", i);
         printf(" Número de vértices: %u\n", aimesh->mNumVertices);
 
@@ -91,7 +93,7 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         }
 
         Mesh* mesh = new Mesh(vertices, uvCoords, indices);
-        GameObject* gameObject = new GameObject(mesh, texture);  
+        GameObject* gameObject = new GameObject(mesh, texture, meshName);  
 
     
         scene->addGameObject(gameObject);

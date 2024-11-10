@@ -14,13 +14,13 @@ public:
     void renderMeshes();
 
     void clearGameObjects();
-
     void addGameObject(GameObject* gameObject);
+    std::vector<std::string> getGameObjectNames() const;
 
-    std::vector<GameObject*> gameObjects;
-    std::vector<std::string> gameObjectNames;
+    std::vector<GameObject*> getGameObjects();
 
     int selectedGameObjectIndex = -1;
 private:
+    std::vector<GameObject*> gameObjects;
     std::vector<Mesh> meshes;
 };

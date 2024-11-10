@@ -47,6 +47,7 @@ const char* textureFile = "../../FBX/Baker_house.png";
 double frameRate = 0;
 ModuleImporter importer;
 ModuleScene scene;
+ModuleInterface moduleInterface;
 
 GLuint textureID;
 GLuint texturaCuadros= importer.createCheckerTexture();
@@ -145,23 +146,23 @@ void render() {
 
 static void init_openGL() {
     glewInit(); 
-    SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente.");
+	moduleInterface.SaveMessage("[INFO] [Glew] Carga e inicializacion completadas correctamente");
 
     if (!GLEW_VERSION_3_0)
     {
         throw exception("OpenGL 3.0 API no esta disponible.");
-        SaveMessage("[ERROR] [OpenGL] Error al cargar o inicializar OpenGL 3.0. Verifique los controladores o la configuracion del sistema.");
+        moduleInterface.SaveMessage("[ERROR] [OpenGL] Error al cargar o inicializar OpenGL 3.0. Verifique los controladores o la configuracion del sistema.");
     }
     else
     {
-        SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
+        moduleInterface.SaveMessage("[INFO] [OpenGL] Carga e inicializacion completadas correctamente.");
     }  
     
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
     ilInit();
-    SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
+    moduleInterface.SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
 }
 
 
@@ -283,50 +284,25 @@ static bool processEvents() {
 
 int main(int argc, char** argv) {
     try {
-        MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+        MyWindow window("SDL2 Engine Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
         importer.setWindow(&window);
         init_openGL();
 
-        int frames = 0;
-        double fps = 0.0;
-        auto startTime = std::chrono::high_resolution_clock::now();
-        
-        if (!importer.loadFBX(file, &scene, textureFile)) { 
-            std::cerr << "Error al cargar el archivo FBX: " << file << std::endl;
+        if (!importer.loadFBX(file, &scene, textureFile)) {
+            std::cerr << "Error loading FBX file: " << file << std::endl;
             return -1;
         }
+        moduleInterface.setScene(&scene);
+        scene.drawScene();
 
-		scene.drawScene();
         while (true) {
-            if (!processEvents()) {
-                break;
-            }
-            float deltaTime = chrono::duration<float>(FRAME_DT).count();
-
-            frames++;
-
-            const auto currentTime = hrclock::now();
-            const auto dt = currentTime - startTime;
-            std::chrono::duration<double> elapsed = currentTime - startTime;
-           if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
-            if (elapsed.count() >= 1.0) { 
-                frameRate = frames / elapsed.count();
-                frames = 0;
-            
-                startTime = currentTime;
-            }
-            if (isRightClicking) {
-                moveCameraWASD(deltaTime);
-            }
+            if (!processEvents()) break;
             render();
             window.swapBuffers();
         }
     }
     catch (const std::exception& e) {
-        std::cerr << "Excepción: " << e.what() << std::endl;
-    }
-    catch (...) {
-        std::cerr << "Excepción desconocida." << std::endl;
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
     return 0;
 }

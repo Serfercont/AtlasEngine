@@ -1,16 +1,17 @@
 #include "ModuleScene.h"
 #include <GL/glew.h>
+#include <iostream>
+#include <imgui_impl_opengl3.h>
 
 ModuleScene::ModuleScene() {}
 
 void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
     Mesh* mesh = new Mesh(vertices, uvs, indices);
+    GameObject* gameObject = new GameObject(mesh, nullptr, name); 
 
-    GameObject* gameObject = new GameObject(mesh, nullptr);
     gameObject->setTransform(transform);
-
     gameObjects.push_back(gameObject);
-    gameObjectNames.push_back(name);
+    std::cout << "GameObject creado con nombre: " << name << std::endl;
 }
 
 void ModuleScene::setTexture(GLuint textureID) {
@@ -28,11 +29,8 @@ void ModuleScene::drawScene() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (const auto& obj : gameObjects) {
-        glPushMatrix();  
-
-        obj->draw();    
-
-        glPopMatrix(); 
+        std::cout << "Dibujando GameObject: " << obj->getName() << std::endl;
+        obj->draw();
     }
 }
 
@@ -87,7 +85,6 @@ void ModuleScene::clearGameObjects() {
         }
     }
     gameObjects.clear();
-    gameObjectNames.clear();
     meshes.clear();
 }
 
@@ -95,4 +92,17 @@ void ModuleScene::clearGameObjects() {
 
 void ModuleScene::addGameObject(GameObject* gameObject) {
     gameObjects.push_back(gameObject);
+}
+
+std::vector<std::string> ModuleScene::getGameObjectNames() const
+{
+    std::vector<std::string> names;
+    for (const auto& gameObject : gameObjects) {
+        names.push_back(gameObject->getName()); 
+    }
+    return names;
+}
+
+std::vector<GameObject*> ModuleScene::getGameObjects() {
+    return gameObjects;
 }
