@@ -262,16 +262,17 @@ static bool processEvents() {
                 // Cargar la textura
                 GLuint newTextureID = importer.loadTexture(droppedFile);
                 if (newTextureID != 0) {
-					moduleInterface.SaveMessage("Textura cargada correctamente con ID: " + newTextureID);
-                    GameObject* lastGameObject = scene.getLastCreatedGameObject();
-                    if (lastGameObject != nullptr) {
-                        Texture* newTexture = new Texture(newTextureID,"default");
-                        lastGameObject->setTexture(newTexture);
-						moduleInterface.SaveMessage("Textura aplicada al último GameObject creado.");
-                        
+                    std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
+
+                    // Obtiene el GameObject seleccionado
+                    GameObject* selectedGameObject = scene.getSelectedGameObject();
+                    if (selectedGameObject != nullptr) {
+                        Texture* newTexture = new Texture(newTextureID, "default");
+                        selectedGameObject->setTexture(newTexture);
+                        std::cout << "Textura aplicada al GameObject seleccionado.\n";
                     }
                     else {
-						moduleInterface.SaveMessage("No hay GameObjects creados.");
+                        std::cerr << "No hay un GameObject seleccionado.\n";
                     }
                 }
                 else {
@@ -291,7 +292,6 @@ static bool processEvents() {
             SDL_free(droppedFile);
             break;
         }
-
 		}
 	}
 	return true;
