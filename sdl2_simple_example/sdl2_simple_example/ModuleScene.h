@@ -29,7 +29,9 @@ public:
     int selectedGameObjectIndex = -1;
 
     GameObject* selectedGameObject = nullptr; 
-    void selectGameObject(GameObject* go); 
+    void selectGameObject(GameObject* go);
+    GameObject* getSelectedGameObject() const;
+
 private:
     std::vector<GameObject*> gameObjects;
     std::vector<Mesh> meshes;
