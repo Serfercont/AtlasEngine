@@ -392,13 +392,95 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
 
 void ModuleInterface::drawConfig() {
     ImGui::Begin("Configuration", &showConfiguration);
+    ImGui::SeparatorText("FPS");
     static float frameRateValues[90] = {};
     static int offset = 0;
     frameRateValues[offset] = frameRate;
     offset = (offset + 1) % IM_ARRAYSIZE(frameRateValues);
     char overlay[32];
     sprintf_s(overlay, "avg FPS: %.1f", frameRate);
-    ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
+    ImGui::PlotLines("", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 100.0f, ImVec2(ImGui::GetWindowWidth() - 15, 100.0f), 0);
+
+    ImGui::SeparatorText("Libraries versions");
+
+    ImGui::TextWrapped("OpenGL version: %s", glGetString(GL_VERSION));
+    SDL_version compiled;
+    SDL_version linked;
+    SDL_VERSION(&compiled);
+    SDL_GetVersion(&linked);
+    ImGui::TextWrapped("SDL version: %u.%u.%u \n", compiled.major, compiled.minor, compiled.patch);
+    ImGui::TextWrapped("ImGui version: %s\n", IMGUI_VERSION);
+    ImGui::TextWrapped("DevIL version: %i\n", IL_VERSION);
+
+    ImGui::SeparatorText("VRAM");
+
+    GLfloat memoriaTotal = 0;
+    GLfloat memoriaLibre = 0;
+    GLfloat memoriaUsada = 0;
+
+    glGetFloatv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &memoriaTotal);
+    glGetFloatv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &memoriaLibre);
+
+    memoriaUsada = (memoriaTotal - memoriaLibre) / 1024;
+
+    ImGui::TextWrapped("Total: %.2f MB", memoriaTotal / 1024);
+    ImGui::TextWrapped("Free: %.2f MB", memoriaLibre / 1024);
+    ImGui::TextWrapped("Used: %.2f MB", memoriaUsada);
+
+    static float memoryValues[90] = {};
+    static int memoryOffset = 0;
+    memoryValues[memoryOffset] = memoriaUsada;
+    memoryOffset = (memoryOffset + 1) % IM_ARRAYSIZE(memoryValues);
+    char memoryOverlay[32];
+    sprintf_s(memoryOverlay, "Used VRAM: %.2f", memoriaUsada);
+    ImGui::PlotLines("", memoryValues, IM_ARRAYSIZE(memoryValues), memoryOffset, memoryOverlay, -0.0f, memoriaTotal / 1024, ImVec2(ImGui::GetWindowWidth() - 15, 100.0f), 0);
+
+    ImGui::SeparatorText("RAM");
+
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+    ImGui::TextWrapped("Total: %i MB", (statex.ullTotalPhys / (1024 * 1024)));
+
+
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
+        SIZE_T privateMemoryUsage = pmc.PrivateUsage;
+        float memoryUsageMB = static_cast<float>(privateMemoryUsage) / (1024.0f * 1024.0f);
+
+        ImGui::TextWrapped("Used: %.2f MB", memoryUsageMB);
+
+        static float ramValues[90] = {};
+        static int ramOffset = 0;
+        ramValues[ramOffset] = memoryUsageMB;
+        ramOffset = (ramOffset + 1) % IM_ARRAYSIZE(ramValues);
+        char ramOverlay[32];
+        sprintf_s(ramOverlay, "Used VRAM: %.2f", memoryUsageMB);
+        ImGui::PlotLines("", ramValues, IM_ARRAYSIZE(ramValues), ramOffset, ramOverlay, -0.0f, statex.ullTotalPhys / (1024 * 1024), ImVec2(ImGui::GetWindowWidth() - 15, 100.0f), 0);
+    }
+
+    ImGui::SeparatorText("Machineri");
+
+    ImGui::TextWrapped("Renderer: %s", glGetString(GL_RENDERER));
+
+    std::string cpuName;
+
+    WCHAR buffer[256];
+    DWORD bufferSize = sizeof(buffer);
+    HKEY key;
+
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+        if (RegQueryValueExW(key, L"ProcessorNameString", NULL, NULL, reinterpret_cast<LPBYTE>(buffer), &bufferSize) == ERROR_SUCCESS) {
+            int size_needed = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, nullptr, 0, nullptr, nullptr);
+            cpuName.resize(size_needed);
+            WideCharToMultiByte(CP_UTF8, 0, buffer, -1, &cpuName[0], size_needed, nullptr, nullptr);
+        }
+        RegCloseKey(key);
+    }
+
+    ImGui::TextWrapped("CPU: %s", cpuName.c_str());
+
+
     ImGui::End();
 }
 void ModuleInterface::drawConsole() {
