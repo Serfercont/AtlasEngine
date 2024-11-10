@@ -128,12 +128,11 @@ void render() {
         cameraUp.x, cameraUp.y, cameraUp.z);
 
 
-    // Configuración para el grid
-    glDisable(GL_TEXTURE_2D);  // Desactivamos texturas para el grid
-    glColor3f(0.8f, 0.8f, 0.8f);  // Color del grid (ajusta según necesidad)
-    importer.drawGrid(1.0f);  // Llamada al grid antes de renderizar el resto de la escena
-
-    // Configuración para la escena 3D con textura
+    
+    glDisable(GL_TEXTURE_2D);  
+    glColor3f(0.8f, 0.8f, 0.8f);  
+    importer.drawGrid(1.0f);  
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -259,20 +258,22 @@ static bool processEvents() {
             std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
             if (extension == "png" || extension == "jpg" || extension == "jpeg") {
-                // Cargar la textura
+                
                 GLuint newTextureID = importer.loadTexture(droppedFile);
                 if (newTextureID != 0) {
-                    std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
+					moduleInterface.SaveMessage("Textura cargada correctamente con ID ");
+                    
 
-                    // Obtiene el GameObject seleccionado
+                    
                     GameObject* selectedGameObject = scene.getSelectedGameObject();
                     if (selectedGameObject != nullptr) {
                         Texture* newTexture = new Texture(newTextureID, "default");
                         selectedGameObject->setTexture(newTexture);
-                        std::cout << "Textura aplicada al GameObject seleccionado.\n";
+						moduleInterface.SaveMessage("Textura aplicada al GameObject seleccionado.");
+                        
                     }
                     else {
-                        std::cerr << "No hay un GameObject seleccionado.\n";
+						moduleInterface.SaveMessage("No hay un GameObject seleccionado.");
                     }
                 }
                 else {
