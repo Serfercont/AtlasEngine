@@ -90,6 +90,8 @@ void moveCameraWASD(float deltaTime) {
     vec3 right = glm::normalize(glm::cross(forward, cameraUp));
     cameraPosition += forward * direction.z + right * direction.x + cameraUp * direction.y;
     cameraTarget = cameraPosition + forward;
+
+   
 }
 
 void rotateCameraWithMouse(int deltaX, int deltaY) {
@@ -190,7 +192,11 @@ static bool processEvents() {
                 }
             }
             if (event.button.button == SDL_BUTTON_RIGHT) {
-                isRightClicking = true;
+                if (SDL_GetModState)
+                {
+                    isRightClicking = true;
+                    SDL_GetMouseState(&lastMouseX, &lastMouseY);
+                }
             }
             break;
         case SDL_MOUSEBUTTONUP:
@@ -237,14 +243,6 @@ static bool processEvents() {
             }
             else if (event.key.keysym.sym == SDLK_t)
             {
-                importer.boolChekerTexture = !importer.boolChekerTexture;
-                if (importer.boolChekerTexture == true)
-                {
-                    importer.loadFBX(file, &scene, textureFile);
-                }
-                else {
-                    importer.loadFBX(file, &scene, textureFile);
-                }
 
             }
             break;
@@ -264,31 +262,33 @@ static bool processEvents() {
                 // Cargar la textura
                 GLuint newTextureID = importer.loadTexture(droppedFile);
                 if (newTextureID != 0) {
-                    std::cout << "Textura cargada correctamente con ID: " << newTextureID << std::endl;
+					moduleInterface.SaveMessage("Textura cargada correctamente con ID: " + newTextureID);
                     GameObject* lastGameObject = scene.getLastCreatedGameObject();
                     if (lastGameObject != nullptr) {
                         Texture* newTexture = new Texture(newTextureID,"default");
                         lastGameObject->setTexture(newTexture);
-                        std::cout << "Textura aplicada al último GameObject creado.\n";
+						moduleInterface.SaveMessage("Textura aplicada al último GameObject creado.");
+                        
                     }
                     else {
-                        std::cerr << "No hay GameObjects creados.\n";
+						moduleInterface.SaveMessage("No hay GameObjects creados.");
                     }
                 }
                 else {
-                    std::cerr << "Error al cargar la textura: " << droppedFile << std::endl;
+					moduleInterface.SaveMessage("Error al cargar la textura: ");
+                    
                 }
             }
             else if (extension == "fbx" || extension == "obj") {
                 if (!importer.loadFBX(droppedFile, &scene, nullptr)) {
-                    std::cerr << "Error al cargar el modelo: " << droppedFile << std::endl;
+					moduleInterface.SaveMessage("Error al cargar el modelo");
                 }
             }
             else {
-                std::cerr << "Tipo de archivo no soportado: " << extension << std::endl;
+				moduleInterface.SaveMessage("Tipo de archivo no soportado ");
             }
 
-            //SDL_free(droppedFile);
+            SDL_free(droppedFile);
             break;
         }
 
@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
             if (isRightClicking) {
                 moveCameraWASD(deltaTime);
             }
-            importer.drawGrid(10.0f);  // Draw grid first
+            importer.drawGrid(10.0f);
             render();
             window.swapBuffers();
         }

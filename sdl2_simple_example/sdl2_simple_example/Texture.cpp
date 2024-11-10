@@ -4,13 +4,13 @@
 #include "stb_image.h"
 
 Texture::Texture(GLuint id, const std::string& path) : id(id), path(path) {
-    // Usa stb_image para obtener la medida de la textura sin cargarla en memoria
+    
     int channels;
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
     if (data) {
-        stbi_image_free(data);  // Liberar la imagen después de obtener las dimensiones
+        stbi_image_free(data);  
     } else {
-        width = height = 0;  // Si falla la carga, asigna 0
+        width = height = 0;  
     }
 }
 

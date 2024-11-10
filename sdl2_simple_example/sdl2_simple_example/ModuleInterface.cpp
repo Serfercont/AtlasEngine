@@ -39,25 +39,25 @@ void ApplyCustomStyle()
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
 
-    colors[ImGuiCol_Text] = color3;              // Texto principal en verde oscuro
-    colors[ImGuiCol_TextDisabled] = color3;      // Texto deshabilitado (rosa suave)
-    colors[ImGuiCol_WindowBg] = color1;          // Fondo principal azul oscuro
-    colors[ImGuiCol_ChildBg] = color1;           // Fondo secundario
-    colors[ImGuiCol_Border] = color2;            // Bordes en verde oscuro
-    colors[ImGuiCol_FrameBg] = color3;           // Fondo de cuadro rosa pastel
-    colors[ImGuiCol_FrameBgHovered] = color2;    // Hover en cuadro azul brillante
-    colors[ImGuiCol_FrameBgActive] = color4;     // Cuadro activo rosa oscuro
-    colors[ImGuiCol_TitleBg] = color1;           // Fondo t�tulo principal
-    colors[ImGuiCol_TitleBgActive] = color2;     // T�tulo activo azul medio
-    colors[ImGuiCol_MenuBarBg] = color1;         // Fondo barra men�
-    colors[ImGuiCol_Button] = color2;            // Bot�n base azul medio
-    colors[ImGuiCol_ButtonHovered] = color5;     // Bot�n hover rosa pastel
-    colors[ImGuiCol_ButtonActive] = color4;      // Bot�n activo rosa oscuro
-    colors[ImGuiCol_Header] = color2;            // Encabezado azul brillante
-    colors[ImGuiCol_HeaderHovered] = color4;     // Hover encabezado
-    colors[ImGuiCol_HeaderActive] = color4;      // Encabezado activo
-    colors[ImGuiCol_ScrollbarGrab] = color2;     // Scroll bar azul medio
-    colors[ImGuiCol_SliderGrab] = color3;        // Slider activo rosa oscuro
+    colors[ImGuiCol_Text] = color3;              
+    colors[ImGuiCol_TextDisabled] = color3;      
+    colors[ImGuiCol_WindowBg] = color1;         
+    colors[ImGuiCol_ChildBg] = color1;           
+    colors[ImGuiCol_Border] = color2;           
+    colors[ImGuiCol_FrameBg] = color2;           
+    colors[ImGuiCol_FrameBgHovered] = color2;    
+    colors[ImGuiCol_FrameBgActive] = color4;     
+    colors[ImGuiCol_TitleBg] = color1;           
+    colors[ImGuiCol_TitleBgActive] = color2;    
+    colors[ImGuiCol_MenuBarBg] = color1;         
+    colors[ImGuiCol_Button] = color2;            
+    colors[ImGuiCol_ButtonHovered] = color5;     
+    colors[ImGuiCol_ButtonActive] = color4;     
+    colors[ImGuiCol_Header] = color2;            
+    colors[ImGuiCol_HeaderHovered] = color4;     
+    colors[ImGuiCol_HeaderActive] = color4;      
+    colors[ImGuiCol_ScrollbarGrab] = color2;     
+    colors[ImGuiCol_SliderGrab] = color3;        
 }
 const char* CubePath = "../../FBX/Primitive/Cube.fbx";
 const char* SpherePath = "../../FBX/Primitive/Sphere.fbx";
@@ -532,7 +532,7 @@ void ModuleInterface::drawHierarchy() {
 
 
 void ModuleInterface::drawInspector() {
-    ImGui::Begin("Inspector", &showInspector); 
+    ImGui::Begin("Inspector", &showInspector);
 
     if (scene->selectedGameObject != nullptr) {
         GameObject* selectedGO = scene->selectedGameObject;
@@ -579,6 +579,8 @@ void ModuleInterface::drawInspector() {
 
     ImGui::End();
 }
+
+
 
 void ModuleInterface::SaveMessage(const char* message)
 {

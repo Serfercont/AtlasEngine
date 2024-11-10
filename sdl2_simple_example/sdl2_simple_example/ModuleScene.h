@@ -7,9 +7,9 @@ class ModuleScene {
 public:
     GameObject* getLastCreatedGameObject() const {
         if (!gameObjects.empty()) {
-            return gameObjects.back();  // Retorna el último GameObject agregado.
+            return gameObjects.back();  
         }
-        return nullptr;  // Retorna nullptr si no hay GameObjects.
+        return nullptr;  
     }
 
     ModuleScene();

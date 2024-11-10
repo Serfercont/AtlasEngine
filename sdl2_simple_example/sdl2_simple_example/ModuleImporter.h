@@ -25,6 +25,7 @@ public:
 
     void setWindow(MyWindow* window);
     const std::vector<Mesh>& getMeshes() const;
+    void setCheckerTexture(GameObject* gameObject);
     //void toggleTexture();
 
     std::vector<Mesh> meshes;

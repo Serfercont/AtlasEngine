@@ -1,5 +1,7 @@
 #include "Mesh.h"
-
+#include <array>
+#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 Mesh::Mesh(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<GLuint>& indices)
     : vertices(vertices), uvCoords(uvs), indices(indices) {
     setupMesh();

@@ -27,7 +27,7 @@ private:
     bool showConfiguration = false;
     bool showHierarchy = false;
     bool showInspector = false;  
-
+    bool useCheckerTexture = false;
 
     std::vector<std::string> logMessages;
     ModuleScene* scene; 

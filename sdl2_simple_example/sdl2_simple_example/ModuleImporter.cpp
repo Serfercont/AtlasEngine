@@ -148,8 +148,8 @@ GLuint ModuleImporter::createCheckerTexture() {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glGenTextures(1, &checkerTexture);
     glBindTexture(GL_TEXTURE_2D, checkerTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // U
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // V
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
@@ -159,28 +159,28 @@ GLuint ModuleImporter::createCheckerTexture() {
 }
 
 void ModuleImporter::drawGrid(float spacing) {
-    glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);  // Guardar el estado actual de color y habilitaciones
+    glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);  
 
-    glDisable(GL_TEXTURE_2D);  // Desactivar texturas para el grid
+    glDisable(GL_TEXTURE_2D); 
 
-    float gridRange = 20.0f;  // Rango del grid
+    float gridRange = 20.0f;  
 
-    // Color base en rosa pastel claro
-    glColor3f(1.0f, 0.75f, 0.8f);  // Color rosa sin transparencia
+    
+    glColor3f(1.0f, 0.75f, 0.8f);  
 
     glBegin(GL_LINES);
     for (float i = -gridRange; i <= gridRange; i += spacing) {
-        // Dibujar las líneas del grid en el eje Z
+        
         glVertex3f(i, 0, -gridRange);
         glVertex3f(i, 0, gridRange);
 
-        // Dibujar las líneas del grid en el eje X
+        
         glVertex3f(-gridRange, 0, i);
         glVertex3f(gridRange, 0, i);
     }
     glEnd();
 
-    glPopAttrib();  // Restaurar el estado anterior de color y habilitaciones
+    glPopAttrib();  
 }
 GLuint ModuleImporter::getTextureID() const {
     return textureID;
@@ -189,3 +189,4 @@ GLuint ModuleImporter::getTextureID() const {
 const std::vector<Mesh>& ModuleImporter::getMeshes() const {
     return meshes;
 }
+
