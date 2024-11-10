@@ -19,6 +19,8 @@ public:
 
     GLuint getTextureID() { return textureID; }
 
+    void drawGrid(float spacing);
+
     GLuint getTextureID() const;
 
     void setWindow(MyWindow* window);

@@ -124,6 +124,13 @@ void render() {
         cameraTarget.x, cameraTarget.y, cameraTarget.z,
         cameraUp.x, cameraUp.y, cameraUp.z);
 
+
+    // Configuración para el grid
+    glDisable(GL_TEXTURE_2D);  // Desactivamos texturas para el grid
+    glColor3f(0.8f, 0.8f, 0.8f);  // Color del grid (ajusta según necesidad)
+    importer.drawGrid(1.0f);  // Llamada al grid antes de renderizar el resto de la escena
+
+    // Configuración para la escena 3D con textura
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -158,7 +165,7 @@ static void init_openGL() {
     }  
     
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 
     ilInit();
     SaveMessage("[INFO][Devil] Carga e inicialización completadas correctamente.");
@@ -326,6 +333,7 @@ int main(int argc, char** argv) {
             if (isRightClicking) {
                 moveCameraWASD(deltaTime);
             }
+            importer.drawGrid(10.0f);  // Draw grid first
             render();
             window.swapBuffers();
         }

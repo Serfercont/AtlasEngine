@@ -153,7 +153,30 @@ GLuint ModuleImporter::createCheckerTexture() {
     return checkerTexture;
 }
 
+void ModuleImporter::drawGrid(float spacing) {
+    glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);  // Guardar el estado actual de color y habilitaciones
 
+    glDisable(GL_TEXTURE_2D);  // Desactivar texturas para el grid
+
+    float gridRange = 20.0f;  // Rango del grid
+
+    // Color base en rosa pastel claro
+    glColor3f(1.0f, 0.75f, 0.8f);  // Color rosa sin transparencia
+
+    glBegin(GL_LINES);
+    for (float i = -gridRange; i <= gridRange; i += spacing) {
+        // Dibujar las líneas del grid en el eje Z
+        glVertex3f(i, 0, -gridRange);
+        glVertex3f(i, 0, gridRange);
+
+        // Dibujar las líneas del grid en el eje X
+        glVertex3f(-gridRange, 0, i);
+        glVertex3f(gridRange, 0, i);
+    }
+    glEnd();
+
+    glPopAttrib();  // Restaurar el estado anterior de color y habilitaciones
+}
 GLuint ModuleImporter::getTextureID() const {
     return textureID;
 }
