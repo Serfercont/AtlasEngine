@@ -14,6 +14,14 @@ public:
     void setupMesh();
     void render() const;
 
+    int getVertexCount() const;
+
+    int getFaceCount() const;
+
+    int getTexCoordCount() const;
+
+    bool hasNormals() const;
+
   
     const std::vector<float>& getVertices() const { return vertices; }
     const std::vector<float>& getUVs() const { return uvCoords; }

@@ -52,3 +52,20 @@ void Mesh::render() const {
 
     glBindVertexArray(0);
 }
+
+int Mesh::getVertexCount() const {
+    return vertices.size() / 3;
+}
+
+int Mesh::getFaceCount() const {
+    return indices.size() / 3;
+}
+
+int Mesh::getTexCoordCount() const {
+    return uvCoords.size() / 2;
+}
+
+bool Mesh::hasNormals() const {
+   
+    return false; 
+}

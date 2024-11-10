@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-//#include "main.cpp"
+#include <functional>
 
 
 
@@ -26,8 +26,13 @@ ImVec4 color2 = ImVec4(128 / 255.0f, 100 / 255.0f, 145 / 255.0f, 1.0f); // #0483
 ImVec4 color3 = ImVec4(254 / 255.0f, 185 / 255.0f, 198 / 255.0f, 1.0f); // #FEB9C6 (Hover suave)
 ImVec4 color4 = ImVec4(185 / 255.0f, 107 / 255.0f, 133 / 255.0f, 1.0f); // #B96B85 (Elementos activos)
 ImVec4 color5 = ImVec4(2 / 255.0f, 30 / 255.0f, 32 / 255.0f, 1.0f);    // #021E20 (Texto/Bordes)
+extern ModuleImporter importer;
+extern ModuleScene scene;
+extern double frameRate;
 
-
+ModuleInterface::ModuleInterface()
+{
+}
 void ApplyCustomStyle()
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -41,12 +46,12 @@ void ApplyCustomStyle()
     colors[ImGuiCol_FrameBg] = color3;           // Fondo de cuadro rosa pastel
     colors[ImGuiCol_FrameBgHovered] = color2;    // Hover en cuadro azul brillante
     colors[ImGuiCol_FrameBgActive] = color4;     // Cuadro activo rosa oscuro
-    colors[ImGuiCol_TitleBg] = color1;           // Fondo título principal
-    colors[ImGuiCol_TitleBgActive] = color2;     // Título activo azul medio
-    colors[ImGuiCol_MenuBarBg] = color1;         // Fondo barra menú
-    colors[ImGuiCol_Button] = color2;            // Botón base azul medio
-    colors[ImGuiCol_ButtonHovered] = color5;     // Botón hover rosa pastel
-    colors[ImGuiCol_ButtonActive] = color4;      // Botón activo rosa oscuro
+    colors[ImGuiCol_TitleBg] = color1;           // Fondo tï¿½tulo principal
+    colors[ImGuiCol_TitleBgActive] = color2;     // Tï¿½tulo activo azul medio
+    colors[ImGuiCol_MenuBarBg] = color1;         // Fondo barra menï¿½
+    colors[ImGuiCol_Button] = color2;            // Botï¿½n base azul medio
+    colors[ImGuiCol_ButtonHovered] = color5;     // Botï¿½n hover rosa pastel
+    colors[ImGuiCol_ButtonActive] = color4;      // Botï¿½n activo rosa oscuro
     colors[ImGuiCol_Header] = color2;            // Encabezado azul brillante
     colors[ImGuiCol_HeaderHovered] = color4;     // Hover encabezado
     colors[ImGuiCol_HeaderActive] = color4;      // Encabezado activo
@@ -57,7 +62,8 @@ const char* CubePath = "../../FBX/Primitive/Cube.fbx";
 const char* SpherePath = "../../FBX/Primitive/Sphere.fbx";
 const char* CylinderPath = "../../FBX/Primitive/Cylinder.fbx";
 const char* PlanePath = "../../FBX/Primitive/Plane.fbx";
-void RenderImGuiMenus(bool& showAbout)
+
+void ModuleInterface::drawMainMenuBar(bool& showAbout)
 {
     extern ModuleImporter importer;
     extern ModuleScene scene;
@@ -175,7 +181,7 @@ void RenderImGuiMenus(bool& showAbout)
             {
                 if (ImGui::MenuItem("Cube", "", false, true))
                 {
-                    if (!importer.loadFBX(CubePath, &scene, nullptr)) {
+                    if (!importer.loadFBX(CubePath, scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                     
@@ -183,7 +189,7 @@ void RenderImGuiMenus(bool& showAbout)
 
                 if (ImGui::MenuItem("Sphere", "", false, true))
                 {
-                    if (!importer.loadFBX(SpherePath, &scene, nullptr)) {
+                    if (!importer.loadFBX(SpherePath, scene, nullptr)) {
                         std::cerr << "Error al cargar el archivo FBX: " << std::endl;
                     }
                 }
@@ -361,51 +367,58 @@ void RenderImGuiMenus(bool& showAbout)
 
     if (showConsole)
     {
-        ImGui::Begin("Console", &showConsole);
-        if (ImGui::SmallButton("Clear"))
-        {
-            logMessages.clear();
-            LogSize = 0;
-        }
-        ImGui::Separator();
-        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-           LogInConsole(LogSize); 
-        }
-        ImGui::EndChild();
-        ImGui::End();
+        drawConsole();
     }
 
     if (showConfiguration)
     {
-        ImGui::Begin("Configuration", &showConfiguration);
-        static float frameRateValues[90] = {};
-        static int offset = 0;
-        frameRateValues[offset] = frameRate;
-        offset = (offset+1)% IM_ARRAYSIZE(frameRateValues);
-        char overlay[32];
-        sprintf_s(overlay, "avg FPS: %.1f", frameRate);
-        ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
-        ImGui::End();
+		drawConfig();
+        
     }
 
     if (showHierarchy)
     {
-        ImGui::Begin("Hierarchy", &showHierarchy);
-        ImGui::End();
+		drawHierarchy();
     }
-    if (showInspector)
-    {
-        ImGui::Begin("Inspector", &showInspector);
-        ImGui::End();
+    if (showInspector) {
+        drawInspector(); 
     }
+
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
 }
 
-void LogInConsole(int ListSize)
+void ModuleInterface::drawConfig() {
+    ImGui::Begin("Configuration", &showConfiguration);
+    static float frameRateValues[90] = {};
+    static int offset = 0;
+    frameRateValues[offset] = frameRate;
+    offset = (offset + 1) % IM_ARRAYSIZE(frameRateValues);
+    char overlay[32];
+    sprintf_s(overlay, "avg FPS: %.1f", frameRate);
+    ImGui::PlotLines("FPS", frameRateValues, IM_ARRAYSIZE(frameRateValues), offset, overlay, -0.0f, 70.0f, ImVec2(0, 80.0f));
+    ImGui::End();
+}
+void ModuleInterface::drawConsole() {
+    ImGui::Begin("Console", &showConsole);
+    if (ImGui::SmallButton("Clear"))
+    {
+        logMessages.clear();
+        LogSize = 0;
+    }
+    ImGui::Separator();
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
+    {
+        LogInConsole(LogSize);
+    }
+    ImGui::EndChild();
+    ImGui::End();
+}
+
+void ModuleInterface::LogInConsole(int ListSize)
 {
     for (size_t i = 0; i < ListSize; i++)
     {
@@ -413,14 +426,91 @@ void LogInConsole(int ListSize)
     }
 }
 
-void SaveMessage(const char* message)
+void ModuleInterface::drawHierarchy() {
+    ImGui::Begin("Hierarchy", &showHierarchy);
+
+    std::vector<GameObject*> gameObjects = scene->getGameObjects();
+
+    std::function<void(const GameObject*)> drawGameObjectHierarchy = [&](const GameObject* obj) {
+        if (ImGui::TreeNode(obj->getName().c_str())) {
+            const std::vector<GameObject*>& children = obj->getChildren();
+            for (const GameObject* child : children) {
+                drawGameObjectHierarchy(child);
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::IsItemClicked()) {
+            scene->selectGameObject(const_cast<GameObject*>(obj));  
+        }
+        };
+
+    for (const GameObject* obj : gameObjects) {
+        if (obj->getParent() == nullptr) {
+            drawGameObjectHierarchy(obj);
+        }
+    }
+
+    ImGui::End();
+}
+
+
+void ModuleInterface::drawInspector() {
+    ImGui::Begin("Inspector", &showInspector); 
+
+    if (scene->selectedGameObject != nullptr) {
+        GameObject* selectedGO = scene->selectedGameObject;
+
+        ImGui::Text("GameObject: %s", selectedGO->getName().c_str());
+
+        ImGui::Text("Position");
+        ImGui::InputFloat3("###Position", &selectedGO->getPosition()[0]);
+
+        ImGui::Text("Rotation");
+        ImGui::InputFloat3("###Rotation", &selectedGO->getRotation()[0]);
+
+        ImGui::Text("Scale");
+        ImGui::InputFloat3("###Scale", &selectedGO->getScale()[0]);
+
+        Texture* texture = selectedGO->getTexture();
+        if (texture) {
+            ImGui::Separator();
+            ImGui::Text("Texture Path: %s", texture->getPath().c_str());
+            ImGui::Text("Texture Size: %d x %d", texture->getWidth(), texture->getHeight());
+        }
+        else {
+            ImGui::Text("No Texture Attached");
+        }
+
+        const auto& meshes = selectedGO->getMeshes();
+        if (!meshes.empty()) {
+            for (size_t i = 0; i < meshes.size(); ++i) {
+                Mesh* mesh = meshes[i];
+                if (mesh) {
+                    ImGui::Separator();
+                    ImGui::Text("Mesh %zu", i + 1);
+                    ImGui::Text("Vertices: %d", mesh->getVertexCount());
+                    ImGui::Text("Faces: %d", mesh->getFaceCount());
+                    ImGui::Text("Texture Coords: %d", mesh->getTexCoordCount());
+                    ImGui::Text("Normals: %s", mesh->hasNormals() ? "Yes" : "No");
+                }
+            }
+        }
+        else {
+            ImGui::Text("No Meshes Attached");
+        }
+    }
+
+    ImGui::End();
+}
+
+void ModuleInterface::SaveMessage(const char* message)
 {
     logMessages.push_back(message);
     LogSize++;
 }
 
 
-void Docking()
+void ModuleInterface::Docking()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 

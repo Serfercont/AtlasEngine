@@ -1,13 +1,16 @@
+#include <GL/glew.h>
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include "MyWindow.h"
+#include "ModuleInterface.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 
 #include "ModuleInterface.h"
 using namespace std;
+extern ModuleInterface moduleInterface;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
 
@@ -29,7 +32,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 130");
-    SaveMessage("[INFO][ImGui] Carga e inicializacion completadas correctamente.");
+	moduleInterface.SaveMessage("[INFO][ImGui] Carga e inicializacion completadas correctamente.");
 }
 
 MyWindow::~MyWindow() {
@@ -42,7 +45,7 @@ MyWindow::~MyWindow() {
 
 void MyWindow::swapBuffers(){
 
-    RenderImGuiMenus(showAbout);
+	moduleInterface.drawMainMenuBar(showAbout);
 
     SDL_GL_SwapWindow(static_cast<SDL_Window*>(_window));
 }

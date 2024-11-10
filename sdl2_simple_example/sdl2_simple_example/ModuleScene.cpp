@@ -1,20 +1,23 @@
 #include "ModuleScene.h"
 #include <GL/glew.h>
+#include <iostream>
+#include <imgui_impl_opengl3.h>
 
 ModuleScene::ModuleScene() {}
 
 void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::vector<float>& uvs, const std::vector<unsigned int>& indices, const std::string& name, const Transform& transform) {
     Mesh* mesh = new Mesh(vertices, uvs, indices);
+    GameObject* gameObject = new GameObject(nullptr, name);
 
-    GameObject* gameObject = new GameObject(mesh, nullptr);
+    gameObject->addMesh(mesh);  
     gameObject->setTransform(transform);
-
     gameObjects.push_back(gameObject);
-    gameObjectNames.push_back(name);
+    std::cout << "GameObject creado con nombre: " << name << std::endl;
 }
 
+
 void ModuleScene::setTexture(GLuint textureID) {
-    Texture* newTexture = new Texture(textureID);
+    Texture* newTexture = new Texture(textureID, "Default Texture Path");
     for (auto& obj : gameObjects) {
         obj->setTexture(newTexture);
     }
@@ -28,34 +31,31 @@ void ModuleScene::drawScene() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (const auto& obj : gameObjects) {
-        glPushMatrix();  
-
-        obj->draw();    
-
-        glPopMatrix(); 
+        std::cout << "Dibujando GameObject: " << obj->getName() << std::endl;
+        obj->draw();
     }
 }
 
 void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
-    meshes.clear();
-    gameObjects.clear();  
+    gameObjects.clear(); 
 
-    
+    GameObject* gameObject = new GameObject(nullptr, "GameObject");
+
     for (const auto& mesh : newMeshes) {
         Mesh* newMesh = new Mesh(mesh.vertices, mesh.uvCoords, mesh.indices);
-        GameObject* gameObject = new GameObject(newMesh, nullptr); 
-
-        gameObjects.push_back(gameObject);
+        gameObject->addMesh(newMesh);  
     }
+
+    gameObjects.push_back(gameObject); 
 }
+
 
 void ModuleScene::renderMeshes() {
     for (GameObject* gameObject : gameObjects) {
-        if (Mesh* mesh = gameObject->getMesh()) {
-            if (Texture* texture = gameObject->getTexture()) {
-                glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
-            }
-
+        if (Texture* texture = gameObject->getTexture()) {
+            glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
+        }
+        for (Mesh* mesh : gameObject->getMeshes()) {
             glBegin(GL_TRIANGLES);
             for (size_t i = 0; i < mesh->indices.size(); i += 3) {
                 unsigned int index1 = mesh->indices[i];
@@ -72,12 +72,12 @@ void ModuleScene::renderMeshes() {
                 glVertex3f(mesh->vertices[index3 * 3], mesh->vertices[index3 * 3 + 1], mesh->vertices[index3 * 3 + 2]);
             }
             glEnd();
-
-            glBindTexture(GL_TEXTURE_2D, 0); 
-
         }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
+
 
 void ModuleScene::clearGameObjects() {
     for (GameObject*& obj : gameObjects) {
@@ -87,12 +87,32 @@ void ModuleScene::clearGameObjects() {
         }
     }
     gameObjects.clear();
-    gameObjectNames.clear();
     meshes.clear();
 }
 
-
-
 void ModuleScene::addGameObject(GameObject* gameObject) {
     gameObjects.push_back(gameObject);
+}
+
+
+void getGameObjectNamesRecursive(GameObject* gameObject, std::vector<std::string>& names) {
+    names.push_back(gameObject->getName());
+    for (auto& child : gameObject->getChildren()) {
+        getGameObjectNamesRecursive(child, names);
+    }
+}
+
+std::vector<std::string> ModuleScene::getGameObjectNames() const {
+    std::vector<std::string> names;
+    for (const auto& gameObject : gameObjects) {
+        getGameObjectNamesRecursive(gameObject, names);
+    }
+    return names;
+}
+void ModuleScene::selectGameObject(GameObject* go) {
+    selectedGameObject = go;
+}
+
+std::vector<GameObject*> ModuleScene::getGameObjects() {
+    return gameObjects;
 }
