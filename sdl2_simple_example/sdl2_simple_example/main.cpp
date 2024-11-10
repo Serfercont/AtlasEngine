@@ -254,11 +254,11 @@ static bool processEvents() {
             }
             break;
         case SDL_DROPFILE: {
-            //char* droppedFile = event.drop.file;
-            //printf("Archivo arrastrado: %s\n", droppedFile);
+            char* droppedFile = event.drop.file;
+            printf("Archivo arrastrado: %s\n", droppedFile);
 
-            //std::string filePath = droppedFile;
-            //std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
+            std::string filePath = droppedFile;
+            std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
             if (extension == "png" || extension == "jpg" || extension == "jpeg") {
                 // Cargar la textura
