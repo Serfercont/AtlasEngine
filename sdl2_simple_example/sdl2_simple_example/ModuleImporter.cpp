@@ -39,8 +39,8 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         fprintf(stderr, "Error al cargar el archivo: %s\n", importer.GetErrorString());
         return false;
     }
-    if (textureFile != nullptr)
-    {
+
+    if (textureFile != nullptr) {
         if (textureID != 0) {
             glDeleteTextures(1, &textureID);
             textureID = 0;
@@ -57,8 +57,11 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
             }
         }
     }
-    Texture* texture = new Texture(textureID);
-    
+
+    Texture* texture = new Texture(textureID, textureFile ? textureFile : "Checker Texture");
+    std::string gameObjectName = "GameObject" + std::to_string(scene->gameObjectCount + 1);
+    GameObject* rootGameObject = new GameObject(texture, gameObjectName);
+
     for (unsigned int i = 0; i < ai_scene->mNumMeshes; i++) {
         const aiMesh* aimesh = ai_scene->mMeshes[i];
         printf("\nMalla %u:\n", i);
@@ -78,7 +81,7 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
                 uvCoords.push_back(aimesh->mTextureCoords[0][v].y);
             }
             else {
-                uvCoords.push_back(0.0f); 
+                uvCoords.push_back(0.0f);
                 uvCoords.push_back(0.0f);
             }
         }
@@ -91,15 +94,17 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         }
 
         Mesh* mesh = new Mesh(vertices, uvCoords, indices);
-        GameObject* gameObject = new GameObject(mesh, texture);  
 
-    
-        scene->addGameObject(gameObject);
+        rootGameObject->addMesh(mesh);
 
         meshes.push_back(*mesh);
     }
+    scene->addGameObject(rootGameObject);
+    scene->gameObjectCount++;
+
     return true;
 }
+
 GLuint ModuleImporter::loadTexture(const char* path) {
     int width, height, channels;
 
