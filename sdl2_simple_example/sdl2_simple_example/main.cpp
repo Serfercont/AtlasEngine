@@ -247,33 +247,33 @@ static bool processEvents() {
             }
             break;
         case SDL_DROPFILE: {
-            char* droppedFile = event.drop.file;
-            printf("Archivo arrastrado: %s\n", droppedFile);
+            //char* droppedFile = event.drop.file;
+            //printf("Archivo arrastrado: %s\n", droppedFile);
 
-            std::string filePath = droppedFile;
-            std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
+            //std::string filePath = droppedFile;
+            //std::string extension = filePath.substr(filePath.find_last_of(".") + 1);
 
-            if (extension == "PNG" || extension == "JPG" || extension == "jpeg") {
-                // Cargar como textura
-                GLuint newTextureID = importer.loadTexture(droppedFile);
-                if (newTextureID != 0) {
-                    Texture* newTexture = new Texture(newTextureID);
-                }
-                else {
-                    std::cerr << "Error al cargar la textura: " << droppedFile << std::endl;
-                }
-            }
-            else if (extension == "fbx" || extension == "obj") {
-                // Cargar como modelo 3D
-                if (!importer.loadFBX(droppedFile, &scene, nullptr)) {
-                    std::cerr << "Error al cargar el modelo: " << droppedFile << std::endl;
-                }
-            }
-            else {
-                std::cerr << "Tipo de archivo no soportado: " << extension << std::endl;
-            }
+            //if (extension == "PNG" || extension == "JPG" || extension == "jpeg") {
+            //    // Cargar como textura
+            //    GLuint newTextureID = importer.loadTexture(droppedFile);
+            //    if (newTextureID != 0) {
+            //        Texture* newTexture = new Texture(newTextureID);
+            //    }
+            //    else {
+            //        std::cerr << "Error al cargar la textura: " << droppedFile << std::endl;
+            //    }
+            //}
+            //else if (extension == "fbx" || extension == "obj") {
+            //    // Cargar como modelo 3D
+            //    if (!importer.loadFBX(droppedFile, &scene, nullptr)) {
+            //        std::cerr << "Error al cargar el modelo: " << droppedFile << std::endl;
+            //    }
+            //}
+            //else {
+            //    std::cerr << "Tipo de archivo no soportado: " << extension << std::endl;
+            //}
 
-            SDL_free(droppedFile);
+            //SDL_free(droppedFile);
             break;
         }
 

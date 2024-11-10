@@ -10,7 +10,6 @@
 #include <vector>
 #include <iostream>
 #include <functional>
-//#include "main.cpp"
 
 
 
@@ -349,6 +348,7 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 void ModuleInterface::drawConfig() {
     ImGui::Begin("Configuration", &showConfiguration);
     static float frameRateValues[90] = {};
@@ -384,6 +384,7 @@ void ModuleInterface::LogInConsole(int ListSize)
         ImGui::Text("%s", logMessages[i].c_str());
     }
 }
+
 void ModuleInterface::drawHierarchy() {
     ImGui::Begin("Hierarchy", &showHierarchy);
 
@@ -413,25 +414,53 @@ void ModuleInterface::drawHierarchy() {
 
 
 void ModuleInterface::drawInspector() {
-    ImGui::Begin("Inspector", &showInspector);  
+    ImGui::Begin("Inspector", &showInspector); 
 
     if (scene->selectedGameObject != nullptr) {
-        GameObject* selectedGO = scene->selectedGameObject;  
+        GameObject* selectedGO = scene->selectedGameObject;
+
+        ImGui::Text("GameObject: %s", selectedGO->getName().c_str());
 
         ImGui::Text("Position");
-        ImGui::InputFloat3("###Position", &selectedGO->getPosition()[0]);  
+        ImGui::InputFloat3("###Position", &selectedGO->getPosition()[0]);
 
         ImGui::Text("Rotation");
-        ImGui::InputFloat3("###Rotation", &selectedGO->getRotation()[0]);  
+        ImGui::InputFloat3("###Rotation", &selectedGO->getRotation()[0]);
 
         ImGui::Text("Scale");
-        ImGui::InputFloat3("###Scale", &selectedGO->getScale()[0]);  
+        ImGui::InputFloat3("###Scale", &selectedGO->getScale()[0]);
+
+        Texture* texture = selectedGO->getTexture();
+        if (texture) {
+            ImGui::Separator();
+            ImGui::Text("Texture Path: %s", texture->getPath().c_str());
+            ImGui::Text("Texture Size: %d x %d", texture->getWidth(), texture->getHeight());
+        }
+        else {
+            ImGui::Text("No Texture Attached");
+        }
+
+        const auto& meshes = selectedGO->getMeshes();
+        if (!meshes.empty()) {
+            for (size_t i = 0; i < meshes.size(); ++i) {
+                Mesh* mesh = meshes[i];
+                if (mesh) {
+                    ImGui::Separator();
+                    ImGui::Text("Mesh %zu", i + 1);
+                    ImGui::Text("Vertices: %d", mesh->getVertexCount());
+                    ImGui::Text("Faces: %d", mesh->getFaceCount());
+                    ImGui::Text("Texture Coords: %d", mesh->getTexCoordCount());
+                    ImGui::Text("Normals: %s", mesh->hasNormals() ? "Yes" : "No");
+                }
+            }
+        }
+        else {
+            ImGui::Text("No Meshes Attached");
+        }
     }
 
     ImGui::End();
 }
-
-
 
 void ModuleInterface::SaveMessage(const char* message)
 {

@@ -58,9 +58,8 @@ bool ModuleImporter::loadFBX(const std::string& filePath, ModuleScene* scene, co
         }
     }
 
-    Texture* texture = new Texture(textureID);
+    Texture* texture = new Texture(textureID, textureFile ? textureFile : "Checker Texture");
     std::string gameObjectName = "GameObject" + std::to_string(scene->gameObjectCount + 1);
-
     GameObject* rootGameObject = new GameObject(texture, gameObjectName);
 
     for (unsigned int i = 0; i < ai_scene->mNumMeshes; i++) {

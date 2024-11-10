@@ -17,7 +17,7 @@ void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::v
 
 
 void ModuleScene::setTexture(GLuint textureID) {
-    Texture* newTexture = new Texture(textureID);
+    Texture* newTexture = new Texture(textureID, "Default Texture Path");
     for (auto& obj : gameObjects) {
         obj->setTexture(newTexture);
     }
