@@ -11,8 +11,8 @@
 #include <iostream>
 #include <functional>
 #include "IL/il.h"
-#include <psapi.h> 
-
+#include <windows.h>
+#include <psapi.h>
 
 bool showConsole = true;
 bool showConfiguration = false;
@@ -393,6 +393,7 @@ void ModuleInterface::drawMainMenuBar(bool& showAbout)
 
 void ModuleInterface::drawConfig() {
     ImGui::Begin("Configuration", &showConfiguration);
+
     ImGui::SeparatorText("FPS");
     static float frameRateValues[90] = {};
     static int offset = 0;
@@ -443,7 +444,6 @@ void ModuleInterface::drawConfig() {
     GlobalMemoryStatusEx(&statex);
     ImGui::TextWrapped("Total: %i MB", (statex.ullTotalPhys / (1024 * 1024)));
 
-
     PROCESS_MEMORY_COUNTERS_EX pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
         SIZE_T privateMemoryUsage = pmc.PrivateUsage;
@@ -456,31 +456,25 @@ void ModuleInterface::drawConfig() {
         ramValues[ramOffset] = memoryUsageMB;
         ramOffset = (ramOffset + 1) % IM_ARRAYSIZE(ramValues);
         char ramOverlay[32];
-        sprintf_s(ramOverlay, "Used VRAM: %.2f", memoryUsageMB);
+        sprintf_s(ramOverlay, "Used RAM: %.2f", memoryUsageMB);
         ImGui::PlotLines("", ramValues, IM_ARRAYSIZE(ramValues), ramOffset, ramOverlay, -0.0f, statex.ullTotalPhys / (1024 * 1024), ImVec2(ImGui::GetWindowWidth() - 15, 100.0f), 0);
     }
 
     ImGui::SeparatorText("Machineri");
 
     ImGui::TextWrapped("Renderer: %s", glGetString(GL_RENDERER));
-
     std::string cpuName;
-
     WCHAR buffer[256];
     DWORD bufferSize = sizeof(buffer);
     HKEY key;
 
     if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &key) == ERROR_SUCCESS) {
         if (RegQueryValueExW(key, L"ProcessorNameString", NULL, NULL, reinterpret_cast<LPBYTE>(buffer), &bufferSize) == ERROR_SUCCESS) {
-            int size_needed = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, nullptr, 0, nullptr, nullptr);
-            cpuName.resize(size_needed);
-            WideCharToMultiByte(CP_UTF8, 0, buffer, -1, &cpuName[0], size_needed, nullptr, nullptr);
+            cpuName = std::string(buffer, buffer + wcslen(buffer));
+            ImGui::TextWrapped("CPU: %s", cpuName.c_str());
         }
         RegCloseKey(key);
     }
-
-    ImGui::TextWrapped("CPU: %s", cpuName.c_str());
-
 
     ImGui::End();
 }
