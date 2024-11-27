@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "ModuleImporter.h"
 #include <string>
 #include <vector>
@@ -531,6 +532,7 @@ void ModuleInterface::drawHierarchy() {
 }
 
 
+
 void ModuleInterface::drawInspector() {
     ImGui::Begin("Inspector", &showInspector);
 
@@ -539,15 +541,22 @@ void ModuleInterface::drawInspector() {
 
         ImGui::Text("GameObject: %s", selectedGO->getName().c_str());
 
-        ImGui::Text("Position");
-        ImGui::InputFloat3("###Position", &selectedGO->getPosition()[0]);
+        glm::vec3 position = selectedGO->getTransform().position;
+        if (ImGui::InputFloat3("###Position", &position[0])) {
+            selectedGO->setPosition(position); 
+        }
 
-        ImGui::Text("Rotation");
-        ImGui::InputFloat3("###Rotation", &selectedGO->getRotation()[0]);
+        glm::vec3 rotation = selectedGO->getTransform().rotation;
+        if (ImGui::InputFloat3("###Rotation", &rotation[0])) {
+            selectedGO->setRotation(rotation);
+        }
 
-        ImGui::Text("Scale");
-        ImGui::InputFloat3("###Scale", &selectedGO->getScale()[0]);
+        glm::vec3 scale = selectedGO->getTransform().scale;
+        if (ImGui::InputFloat3("###Scale", &scale[0])) {
+            selectedGO->setScale(scale); 
+        }
 
+        // Continuación del resto del Inspector...
         Texture* texture = selectedGO->getTexture();
         if (texture) {
             ImGui::Separator();
@@ -579,6 +588,9 @@ void ModuleInterface::drawInspector() {
 
     ImGui::End();
 }
+
+
+
 
 
 

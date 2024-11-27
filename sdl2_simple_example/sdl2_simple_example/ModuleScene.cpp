@@ -1,7 +1,10 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include "ModuleScene.h"
 #include <GL/glew.h>
 #include <iostream>
 #include <imgui_impl_opengl3.h>
+#include <glm/gtx/string_cast.hpp>
+
 
 ModuleScene::ModuleScene() {}
 
@@ -31,10 +34,16 @@ void ModuleScene::drawScene() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (const auto& obj : gameObjects) {
-        std::cout << "Dibujando GameObject: " << obj->getName() << std::endl;
+        if (obj == selectedGameObject) {
+            std::cout << "Drawing Selected GameObject: " << obj->getName() << std::endl;
+            std::cout << "Position: " << glm::to_string(obj->getTransform().position) << std::endl;
+            std::cout << "Rotation: " << glm::to_string(obj->getTransform().rotation) << std::endl;
+            std::cout << "Scale: " << glm::to_string(obj->getTransform().scale) << std::endl;
+        }
         obj->draw();
     }
 }
+
 
 void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
     gameObjects.clear(); 

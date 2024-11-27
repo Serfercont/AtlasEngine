@@ -16,12 +16,14 @@ public:
 
     void setTexture(Texture* newTexture);
     Texture* getTexture() const;
-
-    void setTransform(const Transform& newTransform);
-    glm::vec3 getPosition() const;
-    glm::vec3 getRotation() const;
-    glm::vec3 getScale() const;
+    //Esto son los Getters (cogen los parámetros del GameObject
     const Transform& getTransform() const { return transform; }
+    Transform& getTransform() { return transform; }
+    //Esto son los setters
+    void setTransform(const Transform& newTransform);
+    void setPosition(const glm::vec3& newPosition);
+    void setRotation(const glm::vec3& newRotation);
+    void setScale(const glm::vec3& newScale);
 
     void draw() const;
 
@@ -32,7 +34,6 @@ public:
     const std::vector<GameObject*>& getChildren() const;
 
     void addChild(GameObject* child);
-
 
 private:
     std::string name;
