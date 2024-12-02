@@ -506,9 +506,7 @@ void ModuleInterface::LogInConsole(int ListSize)
 
 void ModuleInterface::drawHierarchy() {
     ImGui::Begin("Hierarchy", &showHierarchy);
-
     std::vector<GameObject*> gameObjects = scene->getGameObjects();
-
     std::function<void(const GameObject*)> drawGameObjectHierarchy = [&](const GameObject* obj) {
         if (ImGui::TreeNode(obj->getName().c_str())) {
             const std::vector<GameObject*>& children = obj->getChildren();
@@ -518,7 +516,27 @@ void ModuleInterface::drawHierarchy() {
             ImGui::TreePop();
         }
         if (ImGui::IsItemClicked()) {
-            scene->selectGameObject(const_cast<GameObject*>(obj));  
+            // Añade trazas de depuración
+            std::cout << "Selecting GameObject: " << obj->getName() << std::endl;
+            std::cout << "Current Position: "
+                << obj->getTransform().position.x << ", "
+                << obj->getTransform().position.y << ", "
+                << obj->getTransform().position.z << std::endl;
+
+            scene->selectGameObject(const_cast<GameObject*>(obj));
+
+            // Confirma la selección
+            GameObject* selectedGO = scene->getSelectedGameObject();
+            if (selectedGO) {
+                std::cout << "Selected GameObject Confirmed: " << selectedGO->getName() << std::endl;
+                std::cout << "Confirmed Position: "
+                    << selectedGO->getTransform().position.x << ", "
+                    << selectedGO->getTransform().position.y << ", "
+                    << selectedGO->getTransform().position.z << std::endl;
+            }
+            else {
+                std::cout << "Selection failed!" << std::endl;
+            }
         }
         };
 
@@ -527,7 +545,6 @@ void ModuleInterface::drawHierarchy() {
             drawGameObjectHierarchy(obj);
         }
     }
-
     ImGui::End();
 }
 
@@ -536,58 +553,55 @@ void ModuleInterface::drawHierarchy() {
 void ModuleInterface::drawInspector() {
     ImGui::Begin("Inspector", &showInspector);
 
-    if (scene->selectedGameObject != nullptr) {
-        GameObject* selectedGO = scene->selectedGameObject;
+    // Información de depuración general
+    ImGui::Text("Total GameObjects: %d", scene->getGameObjects().size());
 
-        ImGui::Text("GameObject: %s", selectedGO->getName().c_str());
+    GameObject* selectedGO = scene->getSelectedGameObject();
+    if (selectedGO != nullptr) {
+        // Información detallada del GameObject seleccionado
+        ImGui::Text("Selected GameObject: %s", selectedGO->getName().c_str());
 
-        glm::vec3 position = selectedGO->getTransform().position;
-        if (ImGui::InputFloat3("###Position", &position[0])) {
-            selectedGO->setPosition(position); 
-        }
+        // Muestra los valores actuales antes de la modificación
+        ImGui::Text("Current Position: %.2f, %.2f, %.2f",
+            selectedGO->getTransform().position.x,
+            selectedGO->getTransform().position.y,
+            selectedGO->getTransform().position.z);
 
-        glm::vec3 rotation = selectedGO->getTransform().rotation;
-        if (ImGui::InputFloat3("###Rotation", &rotation[0])) {
-            selectedGO->setRotation(rotation);
-        }
-
-        glm::vec3 scale = selectedGO->getTransform().scale;
-        if (ImGui::InputFloat3("###Scale", &scale[0])) {
-            selectedGO->setScale(scale); 
-        }
-
-        // Continuación del resto del Inspector...
-        Texture* texture = selectedGO->getTexture();
-        if (texture) {
-            ImGui::Separator();
-            ImGui::Text("Texture Path: %s", texture->getPath().c_str());
-            ImGui::Text("Texture Size: %d x %d", texture->getWidth(), texture->getHeight());
-        }
-        else {
-            ImGui::Text("No Texture Attached");
+        // Modificación de la posición
+        glm::vec3& position = selectedGO->getTransform().position;
+        if (ImGui::InputFloat3("Position", &position[0])) {
+            std::cout << "Inspector: Position modified for " << selectedGO->getName()
+                << " to: " << position.x << ", "
+                << position.y << ", "
+                << position.z << std::endl;
         }
 
-        const auto& meshes = selectedGO->getMeshes();
-        if (!meshes.empty()) {
-            for (size_t i = 0; i < meshes.size(); ++i) {
-                Mesh* mesh = meshes[i];
-                if (mesh) {
-                    ImGui::Separator();
-                    ImGui::Text("Mesh %zu", i + 1);
-                    ImGui::Text("Vertices: %d", mesh->getVertexCount());
-                    ImGui::Text("Faces: %d", mesh->getFaceCount());
-                    ImGui::Text("Texture Coords: %d", mesh->getTexCoordCount());
-                    ImGui::Text("Normals: %s", mesh->hasNormals() ? "Yes" : "No");
-                }
-            }
+        // Modificación de la rotación
+        glm::vec3& rotation = selectedGO->getTransform().rotation;
+        if (ImGui::InputFloat3("Rotation", &rotation[0])) {
+            std::cout << "Inspector: Rotation modified for " << selectedGO->getName()
+                << " to: " << rotation.x << ", "
+                << rotation.y << ", "
+                << rotation.z << std::endl;
         }
-        else {
-            ImGui::Text("No Meshes Attached");
+
+        // Modificación de la escala
+        glm::vec3& scale = selectedGO->getTransform().scale;
+        if (ImGui::InputFloat3("Scale", &scale[0])) {
+            std::cout << "Inspector: Scale modified for " << selectedGO->getName()
+                << " to: " << scale.x << ", "
+                << scale.y << ", "
+                << scale.z << std::endl;
         }
+    }
+    else {
+        ImGui::Text("No GameObject selected");
     }
 
     ImGui::End();
-}
+}   
+
+        
 
 
 

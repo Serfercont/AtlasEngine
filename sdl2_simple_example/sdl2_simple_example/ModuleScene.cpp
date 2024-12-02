@@ -13,7 +13,7 @@ void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::v
     GameObject* gameObject = new GameObject(nullptr, name);
 
     gameObject->addMesh(mesh);  
-    gameObject->setTransform(transform);
+    gameObject->setTransform(transform);    
     gameObjects.push_back(gameObject);
     std::cout << "GameObject creado con nombre: " << name << std::endl;
 }
@@ -21,7 +21,7 @@ void ModuleScene::loadModelData(const std::vector<float>& vertices, const std::v
 
 void ModuleScene::setTexture(GLuint textureID) {
     Texture* newTexture = new Texture(textureID, "Default Texture Path");
-    for (auto& obj : gameObjects) {
+    for (auto& obj : gameObjects) { 
         obj->setTexture(newTexture);
     }
 }
@@ -35,11 +35,13 @@ void ModuleScene::drawScene() {
 
     for (const auto& obj : gameObjects) {
         if (obj == selectedGameObject) {
+                
             std::cout << "Drawing Selected GameObject: " << obj->getName() << std::endl;
             std::cout << "Position: " << glm::to_string(obj->getTransform().position) << std::endl;
             std::cout << "Rotation: " << glm::to_string(obj->getTransform().rotation) << std::endl;
             std::cout << "Scale: " << glm::to_string(obj->getTransform().scale) << std::endl;
         }
+        obj->Update();
         obj->draw();
     }
 }
@@ -110,7 +112,7 @@ void getGameObjectNamesRecursive(GameObject* gameObject, std::vector<std::string
         getGameObjectNamesRecursive(child, names);
     }
 }
-
+    
 std::vector<std::string> ModuleScene::getGameObjectNames() const {
     std::vector<std::string> names;
     for (const auto& gameObject : gameObjects) {
@@ -119,7 +121,18 @@ std::vector<std::string> ModuleScene::getGameObjectNames() const {
     return names;
 }
 void ModuleScene::selectGameObject(GameObject* go) {
-    selectedGameObject = go;
+    if (go) {
+        selectedGameObject = go;
+        std::cout << "ModuleScene: Selected GameObject: " << go->getName() << std::endl;
+        std::cout << "Position: "
+            << go->getTransform().position.x << ", "
+            << go->getTransform().position.y << ", "
+            << go->getTransform().position.z << std::endl;
+    }
+    else {
+        std::cout << "ModuleScene: Attempting to select null GameObject!" << std::endl;
+        selectedGameObject = nullptr;
+    }
 }
 GameObject* ModuleScene::getSelectedGameObject() const {
     return selectedGameObject;  
