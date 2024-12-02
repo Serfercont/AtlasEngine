@@ -59,10 +59,10 @@ void ApplyCustomStyle()
     colors[ImGuiCol_ScrollbarGrab] = color2;     
     colors[ImGuiCol_SliderGrab] = color3;        
 }
-const char* CubePath = "../../FBX/Primitive/Cube.fbx";
-const char* SpherePath = "../../FBX/Primitive/Sphere.fbx";
-const char* CylinderPath = "../../FBX/Primitive/Cylinder.fbx";
-const char* PlanePath = "../../FBX/Primitive/Plane.fbx";
+const char* CubePath = "FBX/Primitive/Cube.fbx";
+const char* SpherePath = "FBX/Primitive/Sphere.fbx";
+const char* CylinderPath = "FBX/Primitive/Cylinder.fbx";
+const char* PlanePath = "FBX/Primitive/Plane.fbx";
 
 void ModuleInterface::drawMainMenuBar(bool& showAbout)
 {

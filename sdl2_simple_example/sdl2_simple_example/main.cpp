@@ -41,8 +41,8 @@ static const ivec2 WINDOW_SIZE(1280, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-const char* file = "../../FBX/BakerHouse.fbx";
-const char* textureFile = "../../FBX/Baker_house.png";
+const char* file = "FBX/BakerHouse.fbx";
+const char* textureFile = "FBX/Baker_house.png";
 
 double frameRate = 0;
 ModuleImporter importer;
