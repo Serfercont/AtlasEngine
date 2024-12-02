@@ -63,10 +63,12 @@ void ModuleScene::setMeshes(const std::vector<Mesh>& newMeshes) {
 
 void ModuleScene::renderMeshes() {
     for (GameObject* gameObject : gameObjects) {
+        gameObject->draw();
         if (Texture* texture = gameObject->getTexture()) {
             glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
         }
         for (Mesh* mesh : gameObject->getMeshes()) {
+			
             glBegin(GL_TRIANGLES);
             for (size_t i = 0; i < mesh->indices.size(); i += 3) {
                 unsigned int index1 = mesh->indices[i];

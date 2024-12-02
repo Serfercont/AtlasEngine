@@ -574,6 +574,7 @@ void ModuleInterface::drawInspector() {
                 << " to: " << position.x << ", "
                 << position.y << ", "
                 << position.z << std::endl;
+            selectedGO->draw();
         }
 
         // Modificación de la rotación
@@ -583,6 +584,7 @@ void ModuleInterface::drawInspector() {
                 << " to: " << rotation.x << ", "
                 << rotation.y << ", "
                 << rotation.z << std::endl;
+            selectedGO->draw();
         }
 
         // Modificación de la escala
@@ -592,6 +594,7 @@ void ModuleInterface::drawInspector() {
                 << " to: " << scale.x << ", "
                 << scale.y << ", "
                 << scale.z << std::endl;
+            selectedGO->draw();
         }
     }
     else {

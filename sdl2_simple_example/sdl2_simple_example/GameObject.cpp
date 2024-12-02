@@ -1,105 +1,104 @@
-            #include "GameObject.h"
-            #include <GL/glew.h>
-            #include <glm/gtc/matrix_transform.hpp>
+#include "GameObject.h"
+#include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
 
-            GameObject::GameObject(Texture* texture, const std::string& name)
-                : texture(texture), transform(), name(name), parent(nullptr) {}
+GameObject::GameObject(Texture* texture, const std::string& name)
+    : texture(texture), transform(), name(name), parent(nullptr) {}
 
-            void GameObject::addMesh(Mesh* mesh) {
-                meshes.push_back(mesh);
-            }
+void GameObject::addMesh(Mesh* mesh) {
+    meshes.push_back(mesh);
+}
 
-            const std::vector<Mesh*>& GameObject::getMeshes() const {
-                return meshes;
-            }
+const std::vector<Mesh*>& GameObject::getMeshes() const {
+    return meshes;
+}
 
-            void GameObject::setTexture(Texture* newTexture) {
-                if (texture) delete texture;
-                texture = newTexture;
-            }
+void GameObject::setTexture(Texture* newTexture) {
+    if (texture) delete texture;
+    texture = newTexture;
+}
 
-            Texture* GameObject::getTexture() const {
-                return texture;
-            }
+Texture* GameObject::getTexture() const {
+    return texture;
+}
 
-            void GameObject::setTransform(const Transform& newTransform) {
-                transform = newTransform;
-            }
-            void GameObject::setPosition(const glm::vec3& newPosition) {
-                transform.position = newPosition;
-            }
-            void GameObject::setRotation(const glm::vec3& newRotation) {
-                transform.rotation = newRotation;
-            }
+void GameObject::setTransform(const Transform& newTransform) {
+    transform = newTransform;
+}
+void GameObject::setPosition(const glm::vec3& newPosition) {
+    transform.position = newPosition;
+}
+void GameObject::setRotation(const glm::vec3& newRotation) {
+    transform.rotation = newRotation;
+}
 
-            void GameObject::setScale(const glm::vec3& newScale) {
-                transform.scale = newScale;
-            }
-            void GameObject::draw() const {
-                glPushMatrix();
+void GameObject::setScale(const glm::vec3& newScale) {
+    transform.scale = newScale;
+}
+void GameObject::draw() const {
+    glPushMatrix();
 
-                glTranslatef(transform.position.x, transform.position.y, transform.position.z);
-                glRotatef(transform.rotation.x, 1.0f, 0.0f, 0.0f);
-                glRotatef(transform.rotation.y, 0.0f, 1.0f, 0.0f);
-                glRotatef(transform.rotation.z, 0.0f, 0.0f, 1.0f);
-                glScalef(transform.scale.x, transform.scale.y, transform.scale.z);
+    glTranslatef(transform.position.x, transform.position.y, transform.position.z);
+    glRotatef(transform.rotation.x, 1.0f, 0.0f, 0.0f);
+    glRotatef(transform.rotation.y, 0.0f, 1.0f, 0.0f);
+    glRotatef(transform.rotation.z, 0.0f, 0.0f, 1.0f);
+    glScalef(transform.scale.x, transform.scale.y, transform.scale.z);
 
-                if (texture) {
-                    texture->bind();
-                }
+    if (texture) {
+        texture->bind();
+    }
 
-                for (Mesh* mesh : meshes) {
-                    if (mesh) {
-                        mesh->render();
-                    }
-                }
+    for (Mesh* mesh : meshes) {
+        if (mesh) {
+            mesh->render();
+        }
+    }
 
-                if (texture) {
-                    texture->unbind();
-                }
+    if (texture) {
+        texture->unbind();
+    }
 
-                glPopMatrix();
+    glPopMatrix();
 
-                for (GameObject* child : children) {
-                    if (child) {
-                        child->draw();
-                    }
-                }
-            }
+    for (GameObject* child : children) {
+        if (child) {
+            child->draw();
+        }
+    }
+}
 
-            const std::string& GameObject::getName() const {
-                return name;
-            }
+const std::string& GameObject::getName() const {
+    return name;
+}
 
-            void GameObject::setName(const std::string& newName) {
-                name = newName;
-            }
+void GameObject::setName(const std::string& newName) {
+    name = newName;
+}
 
-            GameObject* GameObject::getParent() const {
-                return parent;
-            }
+GameObject* GameObject::getParent() const {
+    return parent;
+}
 
-            const std::vector<GameObject*>& GameObject::getChildren() const {
-                return children;
-            }
+const std::vector<GameObject*>& GameObject::getChildren() const {
+    return children;
+}
 
-            void GameObject::addChild(GameObject* child) {
-                if (child) {
-                    child->parent = this;
-                    children.push_back(child);
-                }
-            }
-            void GameObject::Update() {
-                // Sincroniza transformaciones
-                glm::mat4 modelMatrix = glm::mat4(1.0f);
-                modelMatrix = glm::translate(modelMatrix, transform.position);
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), glm::vec3(1, 0, 0));
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), glm::vec3(0, 1, 0));
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), glm::vec3(0, 0, 1));
-                modelMatrix = glm::scale(modelMatrix, transform.scale);
+void GameObject::addChild(GameObject* child) {
+    if (child) {
+        child->parent = this;
+        children.push_back(child);
+    }
+}
+void GameObject::Update() {
+    // Sincroniza transformaciones
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, transform.position);
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), glm::vec3(1, 0, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), glm::vec3(0, 1, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), glm::vec3(0, 0, 1));
+    modelMatrix = glm::scale(modelMatrix, transform.scale);
 
-                // Aplica la matriz a OpenGL o cualquier sistema de render.
-                glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, &modelMatrix[0][0]);
-            }
+    // Aplica la matriz a OpenGL o cualquier sistema de render.
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, &modelMatrix[0][0]);
+}
 
-                    
